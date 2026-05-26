@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+internal="eDP-1"
+external="$(xrandr --query | awk -v i="$internal" '$2 == "connected" && $1 != i {print $1; exit}')"
+
+if [[ -n "${external:-}" ]]; then
+  xrandr --dpi 100 --output "$internal" --auto --output "$external" --auto --primary --right-of "$internal"
+  bspc monitor "$external" -d 1 2 3
+  bspc monitor "$internal" -d 4 5
+  bspc wm -O "$external" "$internal"
+else
+  xrandr --dpi 100 --output "$internal" --auto --primary
+  bspc monitor "$internal" -d 1 2 3 4 5
+fi

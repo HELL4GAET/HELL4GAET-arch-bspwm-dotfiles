@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+dir="$HOME/Pictures/Screenshots"
+mkdir -p "$dir"
+file="$dir/$(date +%Y%m%d-%H%M%S).png"
+
+flameshot full -p "$file"
+printf '%s' "$file" | xclip -selection clipboard
+notify-send "Screenshot" "$file"
+

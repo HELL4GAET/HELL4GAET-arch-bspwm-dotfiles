@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+device="${BACKLIGHT_DEVICE:-amdgpu_bl1}"
+
+case "${1:-}" in
+  up)
+    brightnessctl --device "$device" set +5%
+    ;;
+  down)
+    brightnessctl --device "$device" set 5%-
+    ;;
+  *)
+    echo "usage: brightness up|down" >&2
+    exit 2
+    ;;
+esac
+
+if command -v dunstify >/dev/null 2>&1; then
+  current="$(brightnessctl --device "$device" -m | awk -F, '{print $4}')"
+  dunstify -u low -r 70 "Brightness" "$current"
+fi
+

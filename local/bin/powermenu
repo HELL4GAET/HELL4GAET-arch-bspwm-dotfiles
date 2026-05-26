@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+choice="$(printf 'Lock\nLogout\nSuspend\nReboot\nShutdown' | rofi -dmenu -p power)"
+
+case "$choice" in
+  Lock)
+    command -v i3lock >/dev/null 2>&1 && i3lock || true
+    ;;
+  Logout)
+    bspc quit
+    ;;
+  Suspend)
+    systemctl suspend
+    ;;
+  Reboot)
+    systemctl reboot
+    ;;
+  Shutdown)
+    systemctl poweroff
+    ;;
+esac
+

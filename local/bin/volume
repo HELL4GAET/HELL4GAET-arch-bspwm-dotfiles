@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+case "${1:-}" in
+  up)
+    if command -v pamixer >/dev/null 2>&1; then
+      pamixer --unmute --increase 3
+    else
+      wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
+      wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 3%+
+    fi
+    ;;
+  down)
+    if command -v pamixer >/dev/null 2>&1; then
+      pamixer --unmute --decrease 3
+    else
+      wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
+      wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%-
+    fi
+    ;;
+  mute)
+    if command -v pamixer >/dev/null 2>&1; then
+      pamixer --toggle-mute
+    else
+      wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+    fi
+    ;;
+  *)
+    echo "usage: volume up|down|mute" >&2
+    exit 2
+    ;;
+esac
+
+if command -v dunstify >/dev/null 2>&1; then
+  if command -v pamixer >/dev/null 2>&1; then
+    muted="$(pamixer --get-mute)"
+    volume="$(pamixer --get-volume)%"
+  else
+    status="$(wpctl get-volume @DEFAULT_AUDIO_SINK@)"
+    muted="false"
+    [[ "$status" == *"[MUTED]"* ]] && muted="true"
+    volume="$(awk '{printf "%.0f%%", $2 * 100}' <<<"$status")"
+  fi
+
+  if [[ "$muted" == "true" ]]; then
+    dunstify -u low -r 69 "Volume" "Muted"
+  else
+    dunstify -u low -r 69 "Volume" "$volume"
+  fi
+fi
