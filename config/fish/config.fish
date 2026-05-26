@@ -40,7 +40,7 @@ function fish_prompt
     set_color 61afef
     printf " "
     set_color c8ccd4
-    printf "%s " $USER
+    printf "%s ~ " $USER
     set_color 989cff
     printf "❯ "
     set_color normal
