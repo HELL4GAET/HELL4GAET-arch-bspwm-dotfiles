@@ -7,11 +7,11 @@ case "$mode" in
   big)
     xft_dpi=144
     st_pixelsize=22
-    gtk_font="JetBrainsMono Nerd Font 13"
-    rofi_font="JetBrainsMono Nerd Font 13"
+    gtk_font="JetBrainsMono Nerd Font 14"
+    rofi_font="JetBrainsMono Nerd Font 16"
     alacritty_font="14.0"
     kitty_font="15.0"
-    dunst_font="JetBrainsMono Nerd Font 15"
+    dunst_font="JetBrainsMono Nerd Font 16"
     polybar_height=36
     polybar_border=9
     polybar_font0=17
