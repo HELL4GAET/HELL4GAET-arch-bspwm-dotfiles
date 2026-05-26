@@ -36,6 +36,16 @@ alias cls="clear"
 alias g="git"
 alias feh="feh --scale-down"
 
+function fish_prompt
+    set_color 61afef
+    printf " "
+    set_color c8ccd4
+    printf "%s " $USER
+    set_color 989cff
+    printf "❯ "
+    set_color normal
+end
+
 if command -q bat
     alias cat="bat"
 end
