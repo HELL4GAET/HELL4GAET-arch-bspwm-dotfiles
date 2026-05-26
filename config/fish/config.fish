@@ -39,10 +39,12 @@ alias feh="feh --scale-down"
 function fish_prompt
     set_color 61afef
     printf " "
-    set_color c8ccd4
-    printf "%s ~ " $USER
-    set_color 989cff
-    printf "❯ "
+    set_color normal
+    printf "%s@%s " $USER (prompt_hostname)
+    set_color $fish_color_cwd
+    printf "%s" (prompt_pwd)
+    set_color normal
+    printf "> "
     set_color normal
 end
 
