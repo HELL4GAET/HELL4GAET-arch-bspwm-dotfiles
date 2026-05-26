@@ -8,7 +8,7 @@ case "$mode" in
     xft_dpi=144
     st_pixelsize=22
     gtk_font="JetBrainsMono Nerd Font 13"
-    rofi_font="JetBrainsMono Nerd Font 15"
+    rofi_font="JetBrainsMono Nerd Font 13"
     alacritty_font="14.0"
     kitty_font="15.0"
     dunst_font="JetBrainsMono Nerd Font 15"
