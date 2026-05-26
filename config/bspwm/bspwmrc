@@ -13,7 +13,9 @@ pgrep -x sxhkd >/dev/null || sxhkd &
 
 xrdb -merge "$HOME/.Xresources" 2>/dev/null || true
 xsetroot -cursor_name left_ptr
-setxkbmap -layout us,ru -option grp:alt_shift_toggle,terminate:ctrl_alt_bksp
+setxkbmap -I"$HOME/.xkb" -layout us,ructrl -option grp:alt_shift_toggle,caps:ctrl_modifier,terminate:ctrl_alt_bksp -print \
+    | xkbcomp -I"$HOME/.xkb" -w 0 - "$DISPLAY" 2>/dev/null || true
+xmodmap -e 'keycode 191 = ISO_Next_Group' 2>/dev/null || true
 
 monitors
 

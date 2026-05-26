@@ -173,6 +173,7 @@ install_dotfiles() {
   copy_dir "$ROOT_DIR/config/fish" "$HOME/.config/fish"
   copy_dir "$ROOT_DIR/config/gtk-3.0" "$HOME/.config/gtk-3.0"
   copy_dir "$ROOT_DIR/config/gtk-4.0" "$HOME/.config/gtk-4.0"
+  copy_dir "$ROOT_DIR/xkb" "$HOME/.xkb"
   copy_dir "$ROOT_DIR/themes/Dracula-pink-accent" "$HOME/.themes/Dracula-pink-accent"
   mkdir -p "$HOME/.local/bin"
   for file in "$ROOT_DIR"/local/bin/*; do

@@ -17,13 +17,13 @@ style = "Regular"
 
 [[keyboard.bindings]]
 action = "Paste"
-key = "Y"
+key = "V"
 mods = "Control"
 
 [[keyboard.bindings]]
 action = "Copy"
-key = "W"
-mods = "Alt"
+key = "C"
+mods = "Control|Shift"
 
 [scrolling]
 history = 100000
