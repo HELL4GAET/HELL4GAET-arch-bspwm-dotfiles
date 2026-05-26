@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+state_dir="${XDG_CACHE_HOME:-$HOME/.cache}/polybar-timer"
+state_file="$state_dir/end"
+sound="/usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga"
+
+mkdir -p "$state_dir"
+
+start_timer() {
+  local seconds="$1"
+  local now label
+  now="$(date +%s)"
+  label="$(format_duration "$seconds")"
+  printf '%s\n' "$((now + seconds))" > "$state_file"
+  notify-send "Timer" "Started for ${label}" -t 1500 >/dev/null 2>&1 || true
+}
+
+cancel_timer() {
+  rm -f "$state_file"
+  notify-send "Timer" "Canceled" -t 1200 >/dev/null 2>&1 || true
+}
+
+show_menu() {
+  local choice seconds
+  choice="$(printf '5m\n10m\n15m\n25m\n30m\n1h\nCancel' | rofi -dmenu -p 'timer (4s/4m/4h)')"
+
+  case "$choice" in
+    Cancel)
+      cancel_timer
+      ;;
+    "")
+      ;;
+    *)
+      if seconds="$(parse_duration "$choice")"; then
+        start_timer "$seconds"
+      else
+        notify-send "Timer" "Use format like 4s, 4m, or 4h" -t 2500 >/dev/null 2>&1 || true
+      fi
+      ;;
+  esac
+}
+
+parse_duration() {
+  local input value unit
+  input="${1//[[:space:]]/}"
+  input="${input,,}"
+
+  [[ "$input" =~ ^([0-9]+)(s|m|h)$ ]] || return 1
+
+  value="${BASH_REMATCH[1]}"
+  unit="${BASH_REMATCH[2]}"
+  ((value > 0)) || return 1
+
+  case "$unit" in
+    s) printf '%s\n' "$value" ;;
+    m) printf '%s\n' "$((value * 60))" ;;
+    h) printf '%s\n' "$((value * 3600))" ;;
+  esac
+}
+
+format_duration() {
+  local total="$1"
+  if ((total >= 3600)); then
+    printf '%dh %02dm' "$((total / 3600))" "$(((total % 3600) / 60))"
+  elif ((total >= 60)); then
+    printf '%dm %02ds' "$((total / 60))" "$((total % 60))"
+  else
+    printf '%ds' "$total"
+  fi
+}
+
+show_status() {
+  if [[ ! -f "$state_file" ]]; then
+    printf '%%{F#646870}󰔛%%{F-} '
+    exit 0
+  fi
+
+  local end now left hours minutes seconds
+  end="$(<"$state_file")"
+  now="$(date +%s)"
+  left="$((end - now))"
+
+  if ((left <= 0)); then
+    rm -f "$state_file"
+    notify-send "Timer" "Time is up" -t 5000 >/dev/null 2>&1 || true
+    if [[ -f "$sound" ]]; then
+      paplay "$sound" >/dev/null 2>&1 &
+    else
+      printf '\a'
+    fi
+    exit 0
+  fi
+
+  hours="$((left / 3600))"
+  minutes="$(((left % 3600) / 60))"
+  seconds="$((left % 60))"
+  if ((hours > 0)); then
+    printf '%%{F#e5c07b}󰔛 %d:%02d:%02d%%{F-} ' "$hours" "$minutes" "$seconds"
+  else
+    printf '%%{F#e5c07b}󰔛 %02d:%02d%%{F-} ' "$minutes" "$seconds"
+  fi
+}
+
+case "${1:-status}" in
+  menu)
+    show_menu
+    ;;
+  start)
+    start_timer "$(parse_duration "${2:?duration required}")"
+    ;;
+  cancel)
+    cancel_timer
+    ;;
+  status)
+    show_status
+    ;;
+esac

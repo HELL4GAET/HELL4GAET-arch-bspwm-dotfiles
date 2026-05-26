@@ -13,7 +13,7 @@
 | `Super + Shift + F` | Open Firefox |
 | `Super + Shift + C` | Open VS Code |
 | `Super + Shift + N` | Open Thunar |
-| `Super + Shift + A` | Audio settings |
+| `Super + Shift + P` | Audio settings |
 | `Super + Shift + B` | Bluetooth manager |
 | `Super + Shift + X` | Power menu |
 
@@ -24,6 +24,7 @@
 | `Print` | Flameshot GUI |
 | `Super + Print` | Full screenshot |
 | `Super + Shift + Print` | Area screenshot |
+| `Super + Shift + A` | Area screenshot |
 
 ## Audio And Brightness
 
@@ -76,6 +77,4 @@
 
 | Keybind | Action |
 | --- | --- |
-| `Super + Ctrl + H/J/K/L` | Resize left/bottom/top/right |
-| `Super + Alt + H/J/K/L` | Resize opposite edge |
-
+| `Super + Ctrl + H/J/K/L` | Resize west/south/north/east edge intelligently |

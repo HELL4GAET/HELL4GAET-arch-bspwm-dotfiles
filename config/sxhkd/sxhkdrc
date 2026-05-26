@@ -24,7 +24,7 @@ super + shift + c
 super + shift + n
     thunar
 
-super + shift + a
+super + shift + p
     pavucontrol
 
 super + shift + b
@@ -41,6 +41,9 @@ super + Print
     screenshot-full
 
 super + shift + Print
+    screenshot-area
+
+super + shift + a
     screenshot-area
 
 # audio and brightness
@@ -94,14 +97,20 @@ super + {grave,Tab}
 
 # desktops
 super + {1-5}
-    bspc desktop -f '^{1-5}'
+    bspc desktop -f {1-5}
 
 super + shift + {1-5}
-    bspc node -d '^{1-5}' --follow
+    bspc node -d {1-5} --follow
 
 # resize
-super + ctrl + {h,j,k,l}
-    bspc node -z {left -30 0,bottom 0 30,top 0 -30,right 30 0}
+super + ctrl + h
+    if bspc query -N -n west.local >/dev/null; then bspc node -z left -30 0; else bspc node -z right -30 0; fi
 
-super + alt + {h,j,k,l}
-    bspc node -z {right -30 0,top 0 30,bottom 0 -30,left 30 0}
+super + ctrl + j
+    if bspc query -N -n south.local >/dev/null; then bspc node -z bottom 0 30; else bspc node -z top 0 30; fi
+
+super + ctrl + k
+    if bspc query -N -n north.local >/dev/null; then bspc node -z top 0 -30; else bspc node -z bottom 0 -30; fi
+
+super + ctrl + l
+    if bspc query -N -n east.local >/dev/null; then bspc node -z right 30 0; else bspc node -z left 30 0; fi
