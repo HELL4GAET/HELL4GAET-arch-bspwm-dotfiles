@@ -1,21 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+step=3
+limit_percent=153
+limit=1.53
+
 case "${1:-}" in
   up)
     if command -v pamixer >/dev/null 2>&1; then
-      pamixer --unmute --increase 3
+      pamixer --allow-boost --set-limit "$limit_percent" --unmute --increase "$step"
     else
       wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
-      wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 3%+
+      wpctl set-volume -l "$limit" @DEFAULT_AUDIO_SINK@ "$step%+"
     fi
     ;;
   down)
     if command -v pamixer >/dev/null 2>&1; then
-      pamixer --unmute --decrease 3
+      pamixer --allow-boost --set-limit "$limit_percent" --unmute --decrease "$step"
     else
       wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
-      wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%-
+      wpctl set-volume @DEFAULT_AUDIO_SINK@ "$step%-"
     fi
     ;;
   mute)

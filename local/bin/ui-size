@@ -18,6 +18,7 @@ case "$mode" in
     polybar_font1=23
     polybar_font2=17
     polybar_font3=17
+    bspwm_top_padding=54
     ;;
   normal)
     xft_dpi=100
@@ -33,6 +34,7 @@ case "$mode" in
     polybar_font1=18
     polybar_font2=13
     polybar_font3=13
+    bspwm_top_padding=40
     ;;
   *)
     echo "Usage: ui-size [big|normal]" >&2
@@ -76,6 +78,10 @@ if [[ -f "$HOME/.config/polybar/config.ini" ]]; then
   sed -i "s/^font-1 = .*/font-1 = JetBrainsMono Nerd Font:size=$polybar_font1;5/" "$HOME/.config/polybar/config.ini"
   sed -i "s/^font-2 = .*/font-2 = JetBrainsMono Nerd Font:style=Bold:size=$polybar_font2;3/" "$HOME/.config/polybar/config.ini"
   sed -i "s/^font-3 = .*/font-3 = unifont:fontformat=truetype:size=$polybar_font3:antialias=true;/" "$HOME/.config/polybar/config.ini"
+fi
+
+if command -v bspc >/dev/null 2>&1; then
+  bspc config top_padding "$bspwm_top_padding" 2>/dev/null || true
 fi
 
 "$HOME/.config/polybar/launch.sh" 2>/dev/null || true
