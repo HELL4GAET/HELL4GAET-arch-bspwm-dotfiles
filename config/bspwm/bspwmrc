@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/go/bin:$PATH"
 
 start_once() {
     command -v "$1" >/dev/null 2>&1 || return 0
@@ -16,8 +16,9 @@ xsetroot -cursor_name left_ptr
 setxkbmap -I"$HOME/.xkb" -layout us,ructrl -option grp:alt_shift_toggle,caps:ctrl_modifier,terminate:ctrl_alt_bksp -print \
     | xkbcomp -I"$HOME/.xkb" -w 0 - "$DISPLAY" 2>/dev/null || true
 xmodmap -e 'keycode 191 = ISO_Next_Group' 2>/dev/null || true
+xset r rate 180 45
 
-monitors
+monitors external || monitors internal
 
 bspc config border_width 5
 bspc config window_gap 17
@@ -39,7 +40,6 @@ bspc rule -a feh state=floating
 bspc rule -a Pavucontrol state=floating center=true
 bspc rule -a Blueman-manager state=floating center=true
 bspc rule -a Lxappearance state=floating center=true
-
 wallpaper
 
 pgrep -x dunst >/dev/null || dunst &
