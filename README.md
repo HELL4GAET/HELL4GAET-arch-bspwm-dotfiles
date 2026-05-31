@@ -52,6 +52,9 @@ runtime-состояние, `tor`, `torbrowser-launcher`, `mpd`, `ncmpcpp`, Libr
 
 ## Использование
 
+Справочник по хоткеям системы и LazyVim/Go лежит в
+`docs/keybindings.md`.
+
 Посмотреть справку и проверить текущее железо/пакеты:
 
 ```sh
