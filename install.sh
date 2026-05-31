@@ -7,13 +7,19 @@ BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 CORE_PACKAGES=(
   xorg-server xorg-xinit xorg-xrandr xorg-xsetroot xorg-setxkbmap
   bspwm sxhkd polybar picom rofi dunst alttab
-  alacritty kitty fish thunar firefox code i3lock btop keyd
+  alacritty kitty fish thunar firefox code btop keyd
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber
   networkmanager network-manager-applet bluez bluez-utils blueman
   pavucontrol pamixer playerctl brightnessctl
-  flameshot xclip feh lxappearance
+  flameshot xclip feh mpv telegram-desktop lxappearance
   papirus-icon-theme ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji ttf-dejavu
   git base-devel ripgrep
+)
+
+AUR_REQUIRED_PACKAGES=(
+  goland
+  goland-jre
+  i3lock-color
 )
 
 DEV_PACKAGES=(
@@ -45,6 +51,7 @@ Options:
   --check             Show detected hardware names and missing package groups.
   --packages          Install the curated BSPWM desktop package list.
   --dev               Install curated developer packages.
+  --aur               Install required AUR packages with yay.
   --docker            Install Docker packages and enable docker.service.
   --go                Install Go.
   --rust              Install rustup.
@@ -96,6 +103,7 @@ check_group() {
 
 check_packages() {
   check_group "core desktop" "${CORE_PACKAGES[@]}"
+  check_group "required AUR" "${AUR_REQUIRED_PACKAGES[@]}"
   check_group "developer" "${DEV_PACKAGES[@]}"
   check_group "firefox" "${FIREFOX_PACKAGES[@]}"
   check_group "chromium" "${CHROMIUM_PACKAGES[@]}"
@@ -125,6 +133,14 @@ install_packages() {
 
 install_dev_packages() {
   install_group "${DEV_PACKAGES[@]}"
+}
+
+install_aur_packages() {
+  if ! command -v yay >/dev/null 2>&1; then
+    echo "yay is required to install AUR packages." >&2
+    exit 1
+  fi
+  yay -S --needed "${AUR_REQUIRED_PACKAGES[@]}"
 }
 
 install_docker() {
@@ -176,6 +192,7 @@ install_dotfiles() {
   copy_dir "$ROOT_DIR/config/flameshot" "$HOME/.config/flameshot"
   copy_dir "$ROOT_DIR/config/keyd" "$HOME/.config/keyd"
   copy_dir "$ROOT_DIR/config/Code - OSS" "$HOME/.config/Code - OSS"
+  copy_dir "$ROOT_DIR/config/JetBrains" "$HOME/.config/JetBrains"
   copy_dir "$ROOT_DIR/config/gtk-3.0" "$HOME/.config/gtk-3.0"
   copy_dir "$ROOT_DIR/config/gtk-4.0" "$HOME/.config/gtk-4.0"
   copy_dir "$ROOT_DIR/xkb" "$HOME/.xkb"
@@ -190,6 +207,7 @@ install_dotfiles() {
   copy_file "$ROOT_DIR/bashrc" "$HOME/.bashrc"
   copy_file "$ROOT_DIR/bash_profile" "$HOME/.bash_profile"
   copy_file "$ROOT_DIR/gitconfig" "$HOME/.gitconfig"
+  copy_file "$ROOT_DIR/config/mimeapps.list" "$HOME/.config/mimeapps.list"
   chmod +x "$HOME/.config/bspwm/bspwmrc" "$HOME/.config/polybar/launch.sh" "$HOME/.local/bin/"*
 }
 
@@ -212,6 +230,9 @@ case "${1:-}" in
     ;;
   --dev)
     install_dev_packages
+    ;;
+  --aur)
+    install_aur_packages
     ;;
   --docker)
     install_docker

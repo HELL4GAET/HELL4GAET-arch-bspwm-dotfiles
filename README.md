@@ -9,11 +9,14 @@
 - `bspwm`, `sxhkd`, `polybar`, `picom`, `rofi`, `dunst`, `alttab`
 - `alacritty`, `kitty`, `fish`, `bash`
 - `btop`, `flameshot`, `keyd`, пользовательские настройки `Code - OSS`
+- `mpv`, `telegram-desktop`, GoLand defaults
+- lockscreen через `i3lock-color`
 - звук через PipeWire
 - NetworkManager и bluetooth
 - базовые настройки для VS Code/dev-среды
 - переключение раскладок `us/ru`
 - скриншоты, clipboard, яркость, громкость
+- MIME defaults: изображения через `feh`, видео через `mpv`, browser links через Firefox
 
 Намеренно не включены: профили браузеров, VPN-профили, SSH-ключи, кэши,
 runtime-состояние, `tor`, `torbrowser-launcher`, `mpd`, `ncmpcpp`, LibreOffice,
@@ -77,6 +80,15 @@ runtime-состояние, `tor`, `torbrowser-launcher`, `mpd`, `ncmpcpp`, Libr
 ./install.sh --browser-chromium
 ```
 
+Обязательные AUR-пакеты:
+
+```sh
+./install.sh --aur
+```
+
+Эта команда требует установленный `yay` и ставит `goland`, `goland-jre` и
+`i3lock-color`. `install.sh --check` проверяет их наличие как `required AUR`.
+
 Скопировать dotfiles в `$HOME` с бэкапом старых файлов по timestamp:
 
 ```sh
@@ -102,7 +114,7 @@ runtime-состояние, `tor`, `torbrowser-launcher`, `mpd`, `ncmpcpp`, Libr
 ```
 
 `--all` запускает только `--packages`, `--dotfiles` и `--services`. Он не ставит
-опциональные dev/browser/login-manager группы.
+опциональные dev/browser/login-manager/AUR группы.
 
 Запуск X из TTY:
 
@@ -154,7 +166,11 @@ helper-скрипты для мониторов и UI scaling удалены, п
 
 ## Политика install.sh
 
-- Скрипт не устанавливает AUR-пакеты.
+- Скрипт ставит AUR-пакеты только при явном запуске `./install.sh --aur`.
+- `i3lock-color` нужен для lockscreen.
+- `goland` и `goland-jre` нужны для GoLand.
+- Данные аккаунта Telegram, JetBrains license/key, кэши и recent project state
+  намеренно не сохраняются в репозитории.
 - Опции с установкой пакетов используют `sudo pacman -S --needed`.
 - `--dotfiles` перед копированием переносит существующие файлы в
   `~/.dotfiles-backup/...`, а не удаляет их.

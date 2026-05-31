@@ -5,13 +5,7 @@ choice="$(printf 'Lock\nLogout\nSuspend\nReboot\nShutdown' | rofi -dmenu -p powe
 
 case "$choice" in
   Lock)
-    if command -v i3lock >/dev/null 2>&1; then
-      if [[ -e "$HOME/.config/bspwm/wallpaper.png" ]]; then
-        i3lock -n -e -i "$HOME/.config/bspwm/wallpaper.png"
-      else
-        i3lock -n -e -c 1e222a
-      fi
-    fi
+    lock
     ;;
   Logout)
     bspc quit
