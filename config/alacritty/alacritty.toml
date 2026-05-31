@@ -1,6 +1,6 @@
 [font]
 builtin_box_drawing = true
-size = 15.0
+size = 13.0
 
 [font.bold]
 style = "Bold"
