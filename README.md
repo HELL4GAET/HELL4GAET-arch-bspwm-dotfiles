@@ -1,65 +1,71 @@
 # HELL4GAET Arch BSPWM dotfiles
 
-Minimal X11 desktop based on ideas from Zproger/bspwm-dotfiles, but without
-running its builder and without broad package sets.
+Минимальный X11-десктоп на Arch Linux с BSPWM. Конфиги частично опираются на
+идеи из `Zproger/bspwm-dotfiles`, но без запуска их билдера и без установки
+широкого набора приложений.
 
-## Scope
+## Состав
 
-- bspwm, sxhkd, polybar, picom, rofi, dunst, alttab
-- alacritty, kitty, fish, bash
-- btop, flameshot, keyd, Code - OSS user settings
-- PipeWire audio
-- NetworkManager, bluetooth
-- VS Code/dev friendly defaults
-- us/ru layout toggle
-- screenshots, clipboard, brightness, volume
+- `bspwm`, `sxhkd`, `polybar`, `picom`, `rofi`, `dunst`, `alttab`
+- `alacritty`, `kitty`, `fish`, `bash`
+- `btop`, `flameshot`, `keyd`, пользовательские настройки `Code - OSS`
+- звук через PipeWire
+- NetworkManager и bluetooth
+- базовые настройки для VS Code/dev-среды
+- переключение раскладок `us/ru`
+- скриншоты, clipboard, яркость, громкость
 
-Excluded on purpose: browser profiles, VPN profiles, SSH keys, caches, runtime
-state, tor, tor browser, mpd, ncmpcpp, libreoffice, gparted, kdenlive, audacity,
-anki, wireshark, veracrypt, deluge and random AUR packages.
+Намеренно не включены: профили браузеров, VPN-профили, SSH-ключи, кэши,
+runtime-состояние, `tor`, `torbrowser-launcher`, `mpd`, `ncmpcpp`, LibreOffice,
+`gparted`, `kdenlive`, `audacity`, `anki`, `wireshark`, `veracrypt`, `deluge` и
+случайные AUR-пакеты.
 
-## Zproger audit
+## Почему не запускается Zproger builder
 
-The upstream repository is useful as a visual/config reference, but its builder
-is intentionally not used here. It installs a broad desktop/app set and contains
-the exact actions this repo avoids:
+Оригинальный репозиторий полезен как визуальный и конфигурационный референс, но
+его builder здесь намеренно не используется. Он делает слишком широкие изменения
+для этой машины, включая действия, которых этот репозиторий избегает:
 
 - `chsh -s /usr/bin/fish`
 - `sudo chmod -R 700 ~/.config/*`
 - `sudo ln -sf /usr/bin/alacritty /usr/bin/xterm`
-- enabling `tor.service`
-- enabling user `mpd`
+- включение `tor.service`
+- включение пользовательского `mpd`
 
-Only the BSPWM-related ideas are carried forward, with local scripts rewritten
-for this machine.
+Из Zproger-подхода здесь оставлены только идеи, связанные с BSPWM, а локальные
+скрипты переписаны под текущую систему.
 
-## Current hardware assumptions
+## Текущие аппаратные предположения
 
-- Wi-Fi interface: `wlp3s0`
-- Wired interfaces: `enp2s0f0`, `enp5s0`
+- Wi-Fi интерфейс: `wlp3s0`
+- Ethernet интерфейсы: `enp2s0f0`, `enp5s0`
 - Backlight: `amdgpu_bl1`
-- Battery: `BAT0`
-- AC adapter: `AC`
-- Internal display: `eDP-1`
+- Батарея: `BAT0`
+- AC-адаптер: `AC`
+- Встроенный дисплей: `eDP-1`
 
-Adjust `config/polybar/modules.ini` if hardware names change.
+Если имена устройств изменятся, в первую очередь проверь
+`config/polybar/modules.ini` и `config/bspwm/bspwmrc`.
 
-## Usage
+## Использование
 
-Preview:
+Посмотреть справку и проверить текущее железо/пакеты:
 
 ```sh
 ./install.sh --help
 ./install.sh --check
 ```
 
-Install packages:
+`--check` ничего не устанавливает и не копирует. Он только читает имена
+устройств из `/sys/class/*` и проверяет наличие пакетов через `pacman -Q`.
+
+Установить основной набор пакетов для десктопа:
 
 ```sh
 ./install.sh --packages
 ```
 
-Optional developer/browser groups:
+Опциональные группы для разработки и браузеров:
 
 ```sh
 ./install.sh --dev
@@ -71,61 +77,85 @@ Optional developer/browser groups:
 ./install.sh --browser-chromium
 ```
 
-Copy dotfiles with backup:
+Скопировать dotfiles в `$HOME` с бэкапом старых файлов по timestamp:
 
 ```sh
 ./install.sh --dotfiles
 ```
 
-Enable NetworkManager/bluetooth/PipeWire units:
+Бэкапы создаются в:
+
+```sh
+~/.dotfiles-backup/YYYYMMDD-HHMMSS/
+```
+
+Включить сервисы NetworkManager, bluetooth и пользовательские PipeWire units:
 
 ```sh
 ./install.sh --services
 ```
 
-Start X from TTY:
+Выполнить основной сценарий:
+
+```sh
+./install.sh --all
+```
+
+`--all` запускает только `--packages`, `--dotfiles` и `--services`. Он не ставит
+опциональные dev/browser/login-manager группы.
+
+Запуск X из TTY:
 
 ```sh
 startx
 ```
 
-## Login options
+## Логин
 
-Current setup uses `startx`, which is the lightest normal launch path for this
-BSPWM desktop. A graphical login manager can be added later as an explicit
-choice, for example `ly` or `lightdm`, but it is not enabled by default.
+Текущая схема рассчитана на `startx`: это самый простой и лёгкий путь запуска
+этого BSPWM-десктопа.
 
-To use a lightweight graphical login screen:
+Если нужен лёгкий графический экран входа:
 
 ```sh
 ./install.sh --login-manager
 ```
 
-This installs and enables `ly.service`. It does not enable autologin.
-On current Arch packages this is enabled as `ly@tty1.service`.
+Эта команда устанавливает `ly` и включает `ly@tty1.service`. Autologin не
+настраивается.
 
-## Visual Layer
+## Визуальный слой
 
-The visual layer mirrors the Zproger setup while keeping the cleaned package and
-service policy:
+Визуальный слой близок к Zproger-стилю, но с очищенной политикой пакетов и
+сервисов:
 
-- `alacritty` and `kitty` with JetBrainsMono Nerd Font and Zproger-style colors
-- `fish` inside alacritty only; login shell is not changed
-- Zproger-style polybar, rofi, dunst, picom and Xresources
-- Dracula-pink-accent GTK theme with Papirus-Dark icons
-- curated Zproger wallpapers under `config/bspwm/wallpapers`
-- current wallpaper is applied by `~/.local/bin/wallpaper` using
-  `~/.config/bspwm/wallpaper.png`, currently linked to
-  `~/.config/bspwm/wallpapers/wallpaper.jpg`
+- `alacritty` и `kitty` используют JetBrainsMono Nerd Font и цвета в духе
+  Zproger-конфига
+- `fish` используется внутри `alacritty`; login shell не меняется
+- Polybar, rofi, dunst, picom и Xresources выдержаны в Zproger-like стиле
+- GTK-тема: Dracula-pink-accent, иконки: Papirus-Dark
+- обои лежат в `config/bspwm/wallpapers`
+- текущая обоина применяется через `~/.local/bin/wallpaper` и
+  `~/.config/bspwm/wallpaper.png`
+- сейчас `config/bspwm/wallpaper.png` является симлинком на
+  `config/bspwm/wallpapers/wallpaper.jpg`
 
-## Current Snapshot
+## Текущий снимок системы
 
-This repo mirrors the current machine state for the BSPWM desktop. The old
-monitor and UI scaling helpers were removed because the live config no longer
-uses them:
+Репозиторий зеркалит текущее состояние BSPWM-десктопа на этой машине. Старые
+helper-скрипты для мониторов и UI scaling удалены, потому что live-конфиг их
+больше не использует:
 
 - `local/bin/monitors`
 - `local/bin/ui-size`
 
-Active monitor setup is now handled directly in `config/bspwm/bspwmrc` and
-polybar starts on connected monitors from `config/polybar/launch.sh`.
+Мониторы теперь настраиваются напрямую в `config/bspwm/bspwmrc`, а Polybar
+запускается на подключенных мониторах из `config/polybar/launch.sh`.
+
+## Политика install.sh
+
+- Скрипт не устанавливает AUR-пакеты.
+- Опции с установкой пакетов используют `sudo pacman -S --needed`.
+- `--dotfiles` перед копированием переносит существующие файлы в
+  `~/.dotfiles-backup/...`, а не удаляет их.
+- Без аргументов или с `--help` скрипт только печатает справку.
