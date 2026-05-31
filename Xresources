@@ -5,9 +5,9 @@ Xft.autohint:	0
 Xft.hintstyle:	hintslight
 Xft.rgba:	rgb
 Xft.lcdfilter:	lcddefault
-Xft.dpi:   144
+Xft.dpi:   120
 
-st.font:         JetBrainsMono Nerd Font:style:medium:pixelsize=22
+st.font:         JetBrainsMono Nerd Font:style:medium:pixelsize=20
 
 ! window border inner
 st.opacity: 255
@@ -70,3 +70,6 @@ tabbed.selfgcolor:   #d6d8eb
 
 tabbed.normfgcolor:  #9294a8
 tabbed.normbgcolor:  #353b45
+
+! alttab
+alttab.icon.geometry: 64x64

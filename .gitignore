@@ -1,0 +1,13 @@
+.cache/
+.ssh/
+config/google-chrome/
+config/mozilla/
+config/pritunl/
+config/Code - OSS/Cache/
+config/Code - OSS/CachedData/
+config/Code - OSS/User/workspaceStorage/
+*.log
+*.bak
+*.backup
+*.before-*
+fish_variables

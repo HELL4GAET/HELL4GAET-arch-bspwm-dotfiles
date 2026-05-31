@@ -6,8 +6,8 @@ BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 
 CORE_PACKAGES=(
   xorg-server xorg-xinit xorg-xrandr xorg-xsetroot xorg-setxkbmap
-  bspwm sxhkd polybar picom rofi dunst
-  alacritty fish thunar firefox code i3lock
+  bspwm sxhkd polybar picom rofi dunst alttab
+  alacritty kitty fish thunar firefox code i3lock btop keyd
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber
   networkmanager network-manager-applet bluez bluez-utils blueman
   pavucontrol pamixer playerctl brightnessctl
@@ -170,7 +170,12 @@ install_dotfiles() {
   copy_dir "$ROOT_DIR/config/rofi" "$HOME/.config/rofi"
   copy_dir "$ROOT_DIR/config/dunst" "$HOME/.config/dunst"
   copy_dir "$ROOT_DIR/config/alacritty" "$HOME/.config/alacritty"
+  copy_dir "$ROOT_DIR/config/kitty" "$HOME/.config/kitty"
   copy_dir "$ROOT_DIR/config/fish" "$HOME/.config/fish"
+  copy_dir "$ROOT_DIR/config/btop" "$HOME/.config/btop"
+  copy_dir "$ROOT_DIR/config/flameshot" "$HOME/.config/flameshot"
+  copy_dir "$ROOT_DIR/config/keyd" "$HOME/.config/keyd"
+  copy_dir "$ROOT_DIR/config/Code - OSS" "$HOME/.config/Code - OSS"
   copy_dir "$ROOT_DIR/config/gtk-3.0" "$HOME/.config/gtk-3.0"
   copy_dir "$ROOT_DIR/config/gtk-4.0" "$HOME/.config/gtk-4.0"
   copy_dir "$ROOT_DIR/xkb" "$HOME/.xkb"
@@ -182,6 +187,9 @@ install_dotfiles() {
   copy_file "$ROOT_DIR/xinitrc" "$HOME/.xinitrc"
   copy_file "$ROOT_DIR/Xresources" "$HOME/.Xresources"
   copy_file "$ROOT_DIR/gtkrc-2.0" "$HOME/.gtkrc-2.0"
+  copy_file "$ROOT_DIR/bashrc" "$HOME/.bashrc"
+  copy_file "$ROOT_DIR/bash_profile" "$HOME/.bash_profile"
+  copy_file "$ROOT_DIR/gitconfig" "$HOME/.gitconfig"
   chmod +x "$HOME/.config/bspwm/bspwmrc" "$HOME/.config/polybar/launch.sh" "$HOME/.local/bin/"*
 }
 

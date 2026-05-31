@@ -89,8 +89,7 @@ super + {h,j,k,l}
 super + shift + {h,j,k,l}
     bspc node -s {west,south,north,east}
 
-alt + {_,shift + }Tab
-    bspc node -f {next.local,prev.local}
+# Alt+Tab is handled by alttab.
 
 super + {grave,Tab}
     bspc {node,desktop} -f last

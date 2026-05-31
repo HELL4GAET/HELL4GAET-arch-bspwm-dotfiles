@@ -5,15 +5,18 @@ running its builder and without broad package sets.
 
 ## Scope
 
-- bspwm, sxhkd, polybar, picom, rofi, dunst
+- bspwm, sxhkd, polybar, picom, rofi, dunst, alttab
+- alacritty, kitty, fish, bash
+- btop, flameshot, keyd, Code - OSS user settings
 - PipeWire audio
 - NetworkManager, bluetooth
 - VS Code/dev friendly defaults
 - us/ru layout toggle
 - screenshots, clipboard, brightness, volume
 
-Excluded on purpose: tor, tor browser, mpd, ncmpcpp, libreoffice, gparted,
-kdenlive, audacity, anki, wireshark, veracrypt, deluge and random AUR packages.
+Excluded on purpose: browser profiles, VPN profiles, SSH keys, caches, runtime
+state, tor, tor browser, mpd, ncmpcpp, libreoffice, gparted, kdenlive, audacity,
+anki, wireshark, veracrypt, deluge and random AUR packages.
 
 ## Zproger audit
 
@@ -33,14 +36,13 @@ for this machine.
 ## Current hardware assumptions
 
 - Wi-Fi interface: `wlp3s0`
-- Wired interface: `enp5s0`
+- Wired interfaces: `enp2s0f0`, `enp5s0`
 - Backlight: `amdgpu_bl1`
 - Battery: `BAT0`
 - AC adapter: `AC`
 - Internal display: `eDP-1`
 
-Adjust `config/polybar/modules.ini` and `local/bin/monitors` if hardware names
-change.
+Adjust `config/polybar/modules.ini` if hardware names change.
 
 ## Usage
 
@@ -107,8 +109,23 @@ On current Arch packages this is enabled as `ly@tty1.service`.
 The visual layer mirrors the Zproger setup while keeping the cleaned package and
 service policy:
 
-- `alacritty` with JetBrainsMono Nerd Font and Zproger-style colors
+- `alacritty` and `kitty` with JetBrainsMono Nerd Font and Zproger-style colors
 - `fish` inside alacritty only; login shell is not changed
 - Zproger-style polybar, rofi, dunst, picom and Xresources
 - Dracula-pink-accent GTK theme with Papirus-Dark icons
 - curated Zproger wallpapers under `config/bspwm/wallpapers`
+- current wallpaper is applied by `~/.local/bin/wallpaper` using
+  `~/.config/bspwm/wallpaper.png`, currently linked to
+  `~/.config/bspwm/wallpapers/wallpaper.jpg`
+
+## Current Snapshot
+
+This repo mirrors the current machine state for the BSPWM desktop. The old
+monitor and UI scaling helpers were removed because the live config no longer
+uses them:
+
+- `local/bin/monitors`
+- `local/bin/ui-size`
+
+Active monitor setup is now handled directly in `config/bspwm/bspwmrc` and
+polybar starts on connected monitors from `config/polybar/launch.sh`.

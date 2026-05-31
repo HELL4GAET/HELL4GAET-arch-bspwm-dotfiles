@@ -31,10 +31,14 @@ set -g fish_pager_color_selected_background -r
 set -gx EDITOR code
 set -gx VISUAL code
 set -gx BROWSER /usr/bin/firefox
+fish_add_path -g "$HOME/go/bin"
 
 alias cls="clear"
 alias g="git"
 alias feh="feh --scale-down"
+alias dstart="sudo systemctl start docker.socket docker.service"
+alias dstop="sudo systemctl stop docker.service docker.socket"
+alias dstatus="systemctl status docker.service docker.socket"
 
 function fish_prompt
     set_color 61afef
