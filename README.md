@@ -148,6 +148,10 @@ startx
   Zproger-конфига
 - `fish` используется внутри `alacritty`; login shell не меняется
 - Polybar, rofi, dunst, picom и Xresources выдержаны в Zproger-like стиле
+- окна в `picom` непрозрачные: `active-opacity`, `inactive-opacity` и
+  `frame-opacity` выставлены в `1.0`
+- `alttab` запускается через `bspwmrc` в EWMH-режиме и показывает окна со всех
+  рабочих столов
 - GTK-тема: Dracula-pink-accent, иконки: Papirus-Dark
 - обои лежат в `config/bspwm/wallpapers`
 - текущая обоина применяется через `~/.local/bin/wallpaper` и

@@ -65,7 +65,7 @@
 | `super + f` | Fullscreen |
 | `super + h/j/k/l` | Фокус west/south/north/east |
 | `super + shift + h/j/k/l` | Swap окна west/south/north/east |
-| `Alt + Tab` | Переключение окон через `alttab` |
+| `Alt + Tab` | Переключение окон через `alttab` со всех рабочих столов |
 | `super + grave` | Последнее окно |
 | `super + Tab` | Последний desktop |
 | `super + 1-5` | Перейти на desktop 1-5 |

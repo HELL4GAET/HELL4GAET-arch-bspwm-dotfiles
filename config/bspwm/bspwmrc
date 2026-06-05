@@ -47,7 +47,7 @@ wallpaper
 
 pgrep -x dunst >/dev/null || dunst &
 pgrep -x picom >/dev/null || picom --config "$HOME/.config/picom/picom.conf" &
-start_once alttab -w 1 -d 0 -sc 0
+start_once alttab -w 1 -d 1 -sc 0
 "$HOME/.config/polybar/launch.sh" &
 start_once nm-applet
 start_once blueman-applet
