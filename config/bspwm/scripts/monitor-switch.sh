@@ -5,22 +5,24 @@ set -euo pipefail
 LAPTOP_OUTPUT="${LAPTOP_OUTPUT:-eDP-1}"
 EXTERNAL_OUTPUT="${EXTERNAL_OUTPUT:-DP-1}"
 EXTERNAL_MODE="${EXTERNAL_MODE:-3840x2160}"
+EXTERNAL_RATE="${EXTERNAL_RATE:-60}"
 
 DESKTOPS="${DESKTOPS:-1 2 3 4 5}"
 
 LAPTOP_XFT_DPI="${LAPTOP_XFT_DPI:-120}"
-EXTERNAL_XFT_DPI="${EXTERNAL_XFT_DPI:-168}"
+EXTERNAL_XFT_DPI="${EXTERNAL_XFT_DPI:-144}"
 LAPTOP_GTK_FONT="${LAPTOP_GTK_FONT:-JetBrainsMono Nerd Font 12}"
-EXTERNAL_GTK_FONT="${EXTERNAL_GTK_FONT:-JetBrainsMono Nerd Font 13}"
+EXTERNAL_GTK_FONT="${EXTERNAL_GTK_FONT:-JetBrainsMono Nerd Font 12}"
 LAPTOP_ROFI_FONT="${LAPTOP_ROFI_FONT:-JetBrainsMono Nerd Font 14}"
-EXTERNAL_ROFI_FONT="${EXTERNAL_ROFI_FONT:-JetBrainsMono Nerd Font 17}"
+EXTERNAL_ROFI_FONT="${EXTERNAL_ROFI_FONT:-JetBrainsMono Nerd Font 15}"
 LAPTOP_CURSOR_SIZE="${LAPTOP_CURSOR_SIZE:-0}"
-EXTERNAL_CURSOR_SIZE="${EXTERNAL_CURSOR_SIZE:-32}"
+EXTERNAL_CURSOR_SIZE="${EXTERNAL_CURSOR_SIZE:-28}"
 
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
 PROFILE_FILE="$CACHE_DIR/monitor-profile"
 LOCK_DIR="$CACHE_DIR/monitor-switch.lock"
 POLYBAR_CONFIG="$HOME/.config/polybar/config.ini"
+TOP_PADDING=44
 
 connected_outputs() {
     xrandr --query | awk '$2 == "connected" {print $1}'
@@ -99,11 +101,11 @@ set_polybar_profile() {
 
     case "$profile" in
         external)
-            height=40
-            font_size=16
-            font_offset=4
-            icon_size=22
-            icon_offset=6
+            height=48
+            font_size=20
+            font_offset=5
+            icon_size=28
+            icon_offset=8
             ;;
         laptop)
             height=31
@@ -135,12 +137,14 @@ apply_scale_profile() {
             gtk_font="$EXTERNAL_GTK_FONT"
             rofi_font="$EXTERNAL_ROFI_FONT"
             cursor_size="$EXTERNAL_CURSOR_SIZE"
+            TOP_PADDING=72
             ;;
         laptop)
             xft_dpi="$LAPTOP_XFT_DPI"
             gtk_font="$LAPTOP_GTK_FONT"
             rofi_font="$LAPTOP_ROFI_FONT"
             cursor_size="$LAPTOP_CURSOR_SIZE"
+            TOP_PADDING=44
             ;;
         *)
             printf 'monitor-switch: unknown scale profile: %s\n' "$profile" >&2
@@ -196,6 +200,11 @@ restart_polybar() {
     "$launcher" >/tmp/monitor-switch-polybar.log 2>&1 || true
 }
 
+apply_bspwm_padding() {
+    command -v bspc >/dev/null 2>&1 || return 0
+    bspc config top_padding "$TOP_PADDING" || true
+}
+
 main() {
     command -v xrandr >/dev/null 2>&1 || {
         printf 'monitor-switch: xrandr not found\n' >&2
@@ -212,7 +221,7 @@ main() {
     [[ -n "$EXTERNAL_OUTPUT" ]] || EXTERNAL_OUTPUT="$(detect_external_output || true)"
 
     if is_connected "$EXTERNAL_OUTPUT"; then
-        xrandr --output "$EXTERNAL_OUTPUT" --primary --mode "$EXTERNAL_MODE" || \
+        xrandr --output "$EXTERNAL_OUTPUT" --primary --mode "$EXTERNAL_MODE" --rate "$EXTERNAL_RATE" || \
             xrandr --output "$EXTERNAL_OUTPUT" --primary --auto
         turn_off_other_outputs "$EXTERNAL_OUTPUT"
         printf 'external\n' >"$PROFILE_FILE"
@@ -231,6 +240,7 @@ main() {
 
     command -v wallpaper >/dev/null 2>&1 && wallpaper || true
     restart_polybar
+    apply_bspwm_padding
 }
 
 main "$@"

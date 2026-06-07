@@ -16,8 +16,3 @@ if command -v xrandr >/dev/null 2>&1; then
 else
   setsid -f polybar --reload top >>/tmp/polybar.log 2>&1
 fi
-
-if command -v bspc >/dev/null 2>&1; then
-  sleep 0.3
-  bspc config top_padding 44
-fi
