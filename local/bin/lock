@@ -8,11 +8,6 @@ if [[ -e "$wallpaper" ]]; then
   image_args=(-i "$wallpaper" --fill)
 fi
 
-(
-  sleep 8
-  xset dpms force off
-) &
-
 i3lock \
   -n \
   -e \

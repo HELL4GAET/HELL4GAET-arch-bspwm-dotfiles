@@ -16,6 +16,7 @@
 - базовые настройки для VS Code/dev-среды
 - переключение раскладок `us/ru`
 - скриншоты, clipboard, яркость, громкость
+- ручное переключение между ноутбучным экраном и внешним 4K-монитором
 - MIME defaults: изображения через `feh`, видео через `mpv`, browser links через Firefox
 
 Намеренно не включены: профили браузеров, VPN-профили, SSH-ключи, кэши,
@@ -46,9 +47,11 @@ runtime-состояние, `tor`, `torbrowser-launcher`, `mpd`, `ncmpcpp`, Libr
 - Батарея: `BAT0`
 - AC-адаптер: `AC`
 - Встроенный дисплей: `eDP-1`
+- Внешний 27" 4K дисплей: `DP-1`, режим `3840x2160`
 
 Если имена устройств изменятся, в первую очередь проверь
-`config/polybar/modules.ini` и `config/bspwm/bspwmrc`.
+`config/polybar/modules.ini`, `config/bspwm/bspwmrc` и переменные в начале
+`config/bspwm/scripts/monitor-switch.sh`.
 
 ## Использование
 
@@ -159,6 +162,121 @@ startx
 - сейчас `config/bspwm/wallpaper.png` является симлинком на
   `config/bspwm/wallpapers/wallpaper.jpg`
 
+## Мониторы и HiDPI
+
+Текущая схема мониторов намеренно ручная: автоматический polling watcher не
+включён, потому что при резком hotplug он мог рассинхронизировать `xrandr` и
+BSPWM. Безопасный путь сейчас — запускать переключатель вручную:
+
+```sh
+~/.config/bspwm/scripts/monitor-switch.sh
+```
+
+Горячая клавиша:
+
+```text
+super + shift + m
+```
+
+Скрипт `config/bspwm/scripts/monitor-switch.sh`:
+
+- если `DP-1` подключён, включает его как primary в `3840x2160`, отключает
+  активную картинку на `eDP-1`, переносит BSPWM desktops `1 2 3 4 5` на `DP-1`
+  и пишет профиль `external` в `~/.cache/monitor-profile`
+- если `DP-1` не подключён, возвращает primary на `eDP-1`, переносит desktops
+  на ноутбучный экран и пишет профиль `laptop`
+- обновляет `Xft.dpi`, GTK font/DPI/cursor size, Rofi font и известные строки
+  `height`/`font-*` в `~/.config/polybar/config.ini`
+- перезапускает Polybar через `config/polybar/launch.sh`
+
+Профили читаемости:
+
+- `laptop`: `Xft.dpi=120`, GTK dpi `122880`, Rofi font `14`, Polybar `31`,
+  Polybar fonts `13/18`
+- `external`: `Xft.dpi=168`, GTK dpi `172032`, Rofi font `17`, Polybar `40`,
+  Polybar fonts `16/22`
+
+Проверка состояния:
+
+```sh
+xrandr --query
+bspc query -M --names
+pgrep -a -x polybar
+cat ~/.cache/monitor-profile
+```
+
+Ожидаемо на внешнем мониторе:
+
+```text
+DP-1 primary 3840x2160
+bspc -> DP-1
+monitor-profile -> external
+```
+
+Ожидаемо на ноутбуке:
+
+```text
+eDP-1 primary 1920x1080
+bspc -> eDP-1
+monitor-profile -> laptop
+```
+
+`config/polybar/config.ini` хранится в репозитории в laptop baseline. External
+размеры применяются самим `monitor-switch.sh` на установленной системе.
+
+## Bluetooth и Apple Magic Keyboard
+
+Bluetooth включается через `bluetooth.service`, а Blueman запускается из
+`bspwmrc`. Для Apple Magic Keyboard на этой машине рабочий путь — pairing через
+`bluetoothctl` с подтверждением passkey на компьютере, а не вводом кода на
+клавиатуре.
+
+Если Blueman показывает код без кнопок подтверждения, используй:
+
+```sh
+bluetoothctl
+agent DisplayOnly
+default-agent
+scan on
+```
+
+Когда появится `Magic Keyboard`:
+
+```sh
+scan off
+pair 1C:1D:D3:78:B9:2A
+```
+
+Если появится запрос вида:
+
+```text
+[agent] Confirm passkey 123456 (yes/no):
+```
+
+нужно ввести `yes` в `bluetoothctl`. После успешного pairing:
+
+```sh
+trust 1C:1D:D3:78:B9:2A
+connect 1C:1D:D3:78:B9:2A
+```
+
+Проверка:
+
+```sh
+bluetoothctl info 1C:1D:D3:78:B9:2A
+xinput list
+```
+
+Рабочее состояние:
+
+```text
+Paired: yes
+Bonded: yes
+Trusted: yes
+Connected: yes
+Magic Keyboard ... [slave keyboard]
+```
+
 ## Текущий снимок системы
 
 Репозиторий зеркалит текущее состояние BSPWM-десктопа на этой машине. Старые
@@ -168,8 +286,8 @@ helper-скрипты для мониторов и UI scaling удалены, п
 - `local/bin/monitors`
 - `local/bin/ui-size`
 
-Мониторы теперь настраиваются напрямую в `config/bspwm/bspwmrc`, а Polybar
-запускается на подключенных мониторах из `config/polybar/launch.sh`.
+Мониторы теперь переключаются через `config/bspwm/scripts/monitor-switch.sh`, а
+Polybar запускается на активных мониторах из `config/polybar/launch.sh`.
 
 ## Политика install.sh
 

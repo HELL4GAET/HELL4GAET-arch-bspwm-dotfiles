@@ -29,7 +29,7 @@
 | `super + shift + p` | Pavucontrol |
 | `super + shift + b` | Blueman Manager |
 | `super + shift + x` | Powermenu |
-| `super + shift + l` | Lock screen |
+| `super + shift + m` | Переключить профиль монитора через `monitor-switch.sh` |
 
 ### Скриншоты
 

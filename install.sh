@@ -209,6 +209,7 @@ install_dotfiles() {
   copy_file "$ROOT_DIR/gitconfig" "$HOME/.gitconfig"
   copy_file "$ROOT_DIR/config/mimeapps.list" "$HOME/.config/mimeapps.list"
   chmod +x "$HOME/.config/bspwm/bspwmrc" "$HOME/.config/polybar/launch.sh" "$HOME/.local/bin/"*
+  find "$HOME/.config/bspwm/scripts" -type f -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
 }
 
 enable_services() {

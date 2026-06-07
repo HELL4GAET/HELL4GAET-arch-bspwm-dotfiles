@@ -3,8 +3,10 @@ set -euo pipefail
 
 killall -q polybar || true
 
-while pgrep -x polybar >/dev/null; do
+tries=0
+while pgrep -x polybar >/dev/null && [ "$tries" -lt 10 ]; do
   sleep 0.2
+  tries=$((tries + 1))
 done
 
 if command -v xrandr >/dev/null 2>&1; then
