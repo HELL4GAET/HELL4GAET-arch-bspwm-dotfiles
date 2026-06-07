@@ -5,6 +5,10 @@ dir="$HOME/Pictures/Screenshots"
 mkdir -p "$dir"
 file="$dir/$(date +%Y%m%d-%H%M%S).png"
 
-flameshot full -p "$file"
-printf '%s' "$file" | xclip -selection clipboard
+flameshot full -r >"$file"
+if [[ ! -s "$file" ]]; then
+  rm -f "$file"
+  exit 0
+fi
+xclip -selection clipboard -target image/png -i "$file"
 notify-send "Screenshot" "$file"

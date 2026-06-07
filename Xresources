@@ -73,3 +73,5 @@ tabbed.normbgcolor:  #353b45
 
 ! alttab
 alttab.icon.geometry: 64x64
+Xcursor.theme:   Bibata-Modern-Ice
+Xcursor.size:   24

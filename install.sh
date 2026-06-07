@@ -5,9 +5,10 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 
 CORE_PACKAGES=(
-  xorg-server xorg-xinit xorg-xrandr xorg-xsetroot xorg-setxkbmap
-  bspwm sxhkd polybar picom rofi dunst alttab
-  alacritty kitty fish thunar firefox code btop keyd
+  xorg-server xorg-xinit xorg-xrandr xorg-xset xorg-xsetroot
+  xorg-setxkbmap xorg-xkbcomp xorg-xmodmap xorg-xrdb
+  bspwm sxhkd polybar picom rofi dunst
+  alacritty kitty fish thunar mousepad firefox code btop keyd
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber
   networkmanager network-manager-applet bluez bluez-utils blueman
   pavucontrol pamixer playerctl brightnessctl
@@ -16,11 +17,13 @@ CORE_PACKAGES=(
   git base-devel ripgrep
 )
 
-AUR_REQUIRED_PACKAGES=(
-  goland
-  goland-jre
+AUR_DESKTOP_PACKAGES=(
+  alttab
   i3lock-color
+  bibata-cursor-theme
 )
+
+AUR_GOLAND_PACKAGES=(goland goland-jre)
 
 DEV_PACKAGES=(
   nodejs npm pnpm
@@ -48,10 +51,12 @@ show_help() {
 Usage: ./install.sh [option]
 
 Options:
+  (no option)         Start the interactive installation wizard.
   --check             Show detected hardware names and missing package groups.
   --packages          Install the curated BSPWM desktop package list.
-  --dev               Install curated developer packages.
-  --aur               Install required AUR packages with yay.
+  --aur               Install desktop AUR packages; bootstraps yay if needed.
+  --dev               Install optional developer packages.
+  --goland            Install optional GoLand packages from AUR.
   --docker            Install Docker packages and enable docker.service.
   --go                Install Go.
   --rust              Install rustup.
@@ -61,12 +66,36 @@ Options:
   --login-manager     Install and enable ly display manager.
   --dotfiles          Copy dotfiles into \$HOME with timestamped backups.
   --services          Enable NetworkManager, bluetooth and PipeWire user units.
-  --all               Run --packages, --dotfiles and --services only.
+  --all               Install desktop packages, AUR, dotfiles and services.
   --help              Show this help.
 
-No option is destructive by default.
-No AUR packages are installed by this script.
+Existing dotfiles are moved to a timestamped backup before replacement.
 EOF
+}
+
+require_arch() {
+  if ! command -v pacman >/dev/null 2>&1; then
+    echo "This installer supports Arch Linux and pacman-based systems." >&2
+    exit 1
+  fi
+  if [[ ${EUID:-$(id -u)} -eq 0 ]]; then
+    echo "Run this installer as a regular user, not as root." >&2
+    exit 1
+  fi
+}
+
+confirm() {
+  local prompt="$1"
+  local default="${2:-yes}"
+  local answer
+
+  if [[ "$default" == yes ]]; then
+    read -r -p "$prompt [Y/n] " answer
+    [[ -z "$answer" || "$answer" =~ ^[Yy]$ ]]
+  else
+    read -r -p "$prompt [y/N] " answer
+    [[ "$answer" =~ ^[Yy]$ ]]
+  fi
 }
 
 detect() {
@@ -103,7 +132,8 @@ check_group() {
 
 check_packages() {
   check_group "core desktop" "${CORE_PACKAGES[@]}"
-  check_group "required AUR" "${AUR_REQUIRED_PACKAGES[@]}"
+  check_group "desktop AUR" "${AUR_DESKTOP_PACKAGES[@]}"
+  check_group "GoLand AUR" "${AUR_GOLAND_PACKAGES[@]}"
   check_group "developer" "${DEV_PACKAGES[@]}"
   check_group "firefox" "${FIREFOX_PACKAGES[@]}"
   check_group "chromium" "${CHROMIUM_PACKAGES[@]}"
@@ -127,6 +157,24 @@ install_group() {
   sudo pacman -S --needed "$@"
 }
 
+ensure_yay() {
+  local build_dir
+
+  if command -v yay >/dev/null 2>&1; then
+    return 0
+  fi
+
+  echo "yay is not installed; bootstrapping it from AUR."
+  install_group base-devel git
+  build_dir="$(mktemp -d)"
+  git clone https://aur.archlinux.org/yay.git "$build_dir/yay"
+  (
+    cd "$build_dir/yay"
+    makepkg -si --needed
+  )
+  rm -rf "$build_dir"
+}
+
 install_packages() {
   install_group "${CORE_PACKAGES[@]}"
 }
@@ -136,16 +184,20 @@ install_dev_packages() {
 }
 
 install_aur_packages() {
-  if ! command -v yay >/dev/null 2>&1; then
-    echo "yay is required to install AUR packages." >&2
-    exit 1
-  fi
-  yay -S --needed "${AUR_REQUIRED_PACKAGES[@]}"
+  ensure_yay
+  yay -S --needed "${AUR_DESKTOP_PACKAGES[@]}"
+}
+
+install_goland() {
+  ensure_yay
+  yay -S --needed "${AUR_GOLAND_PACKAGES[@]}"
 }
 
 install_docker() {
   install_group "${DOCKER_PACKAGES[@]}"
-  sudo systemctl enable docker.service
+  sudo systemctl enable --now docker.service
+  sudo usermod -aG docker "$USER"
+  echo "Docker group membership takes effect after the next login."
 }
 
 install_login_manager() {
@@ -178,6 +230,51 @@ copy_file() {
   cp "$src" "$dst"
 }
 
+configure_hardware() {
+  local modules="$HOME/.config/polybar/modules.ini"
+  local wifi=""
+  local backlight=""
+  local battery=""
+  local adapter=""
+  local device type
+
+  [[ -f "$modules" ]] || return 0
+
+  for device in /sys/class/net/*; do
+    [[ -d "$device/wireless" ]] || continue
+    wifi="${device##*/}"
+    break
+  done
+
+  if [[ -d /sys/class/backlight ]]; then
+    backlight="$(find /sys/class/backlight -mindepth 1 -maxdepth 1 -printf '%f\n' | head -n 1)"
+  fi
+
+  for device in /sys/class/power_supply/*; do
+    [[ -r "$device/type" ]] || continue
+    type="$(<"$device/type")"
+    case "$type" in
+      Battery)
+        [[ -n "$battery" ]] || battery="${device##*/}"
+        ;;
+      Mains|USB|USB_C)
+        [[ -n "$adapter" ]] || adapter="${device##*/}"
+        ;;
+    esac
+  done
+
+  [[ -z "$wifi" ]] || sed -i "/^\\[module\\/wlan\\]/,/^\\[/ s/^interface = .*/interface = $wifi/" "$modules"
+  [[ -z "$backlight" ]] || sed -i "/^\\[module\\/backlight\\]/,/^\\[/ s/^card = .*/card = $backlight/" "$modules"
+  [[ -z "$battery" ]] || sed -i "/^\\[module\\/battery\\]/,/^\\[/ s/^battery = .*/battery = $battery/" "$modules"
+  [[ -z "$adapter" ]] || sed -i "/^\\[module\\/battery\\]/,/^\\[/ s/^adapter = .*/adapter = $adapter/" "$modules"
+
+  echo "Detected Polybar devices:"
+  echo "  Wi-Fi: ${wifi:-not found}"
+  echo "  Backlight: ${backlight:-not found}"
+  echo "  Battery: ${battery:-not found}"
+  echo "  Adapter: ${adapter:-not found}"
+}
+
 install_dotfiles() {
   copy_dir "$ROOT_DIR/config/bspwm" "$HOME/.config/bspwm"
   copy_dir "$ROOT_DIR/config/sxhkd" "$HOME/.config/sxhkd"
@@ -208,18 +305,78 @@ install_dotfiles() {
   copy_file "$ROOT_DIR/bash_profile" "$HOME/.bash_profile"
   copy_file "$ROOT_DIR/gitconfig" "$HOME/.gitconfig"
   copy_file "$ROOT_DIR/config/mimeapps.list" "$HOME/.config/mimeapps.list"
+  ln -sfn "wallpapers/wallpaper.jpg" "$HOME/.config/bspwm/wallpaper.png"
+  configure_hardware
   chmod +x "$HOME/.config/bspwm/bspwmrc" "$HOME/.config/polybar/launch.sh" "$HOME/.local/bin/"*
   find "$HOME/.config/bspwm/scripts" -type f -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
 }
 
 enable_services() {
-  sudo systemctl enable NetworkManager.service
-  sudo systemctl enable bluetooth.service
-  systemctl --user enable pipewire.socket pipewire-pulse.socket wireplumber.service || true
+  sudo install -Dm644 "$ROOT_DIR/config/keyd/default.conf" /etc/keyd/default.conf
+  sudo systemctl enable --now NetworkManager.service
+  sudo systemctl enable --now bluetooth.service
+  sudo systemctl enable --now keyd.service
+  systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service || true
 }
 
+print_finish() {
+  cat <<EOF
+
+Installation finished.
+
+Next steps:
+  1. Reboot, or log out and back in.
+  2. From a TTY run: startx
+  3. In BSPWM press Super+Enter for a terminal.
+  4. Use Super+Shift+M to toggle laptop/external monitor profiles.
+
+Backups, when created, are stored under:
+  $BACKUP_DIR
+EOF
+}
+
+run_wizard() {
+  cat <<EOF
+HELL4GAET BSPWM installer
+
+This wizard can install the desktop packages, required AUR packages,
+copy dotfiles with backups, and enable desktop services.
+EOF
+
+  confirm "Continue with the BSPWM desktop installation?" yes || exit 0
+
+  if confirm "Install the core desktop packages?" yes; then
+    install_packages
+  fi
+  if confirm "Install required AUR packages (alttab, i3lock-color, Bibata)?" yes; then
+    install_aur_packages
+  fi
+  if confirm "Install dotfiles into $HOME?" yes; then
+    install_dotfiles
+  fi
+  if confirm "Enable NetworkManager, Bluetooth, keyd and PipeWire?" yes; then
+    enable_services
+  fi
+  if confirm "Install optional developer tools?" no; then
+    install_dev_packages
+  fi
+  if confirm "Install optional GoLand?" no; then
+    install_goland
+  fi
+  if confirm "Install the optional ly login manager?" no; then
+    install_login_manager
+  fi
+
+  print_finish
+}
+
+require_arch
+
 case "${1:-}" in
-  --help|-h|"")
+  "")
+    run_wizard
+    ;;
+  --help|-h)
     show_help
     ;;
   --check)
@@ -234,6 +391,9 @@ case "${1:-}" in
     ;;
   --aur)
     install_aur_packages
+    ;;
+  --goland)
+    install_goland
     ;;
   --docker)
     install_docker
@@ -264,8 +424,10 @@ case "${1:-}" in
     ;;
   --all)
     install_packages
+    install_aur_packages
     install_dotfiles
     enable_services
+    print_finish
     ;;
   *)
     echo "Unknown option: $1" >&2

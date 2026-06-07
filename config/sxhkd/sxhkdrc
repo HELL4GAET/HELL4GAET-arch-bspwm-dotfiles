@@ -34,7 +34,7 @@ super + shift + x
     powermenu
 
 super + shift + m
-    ~/.config/bspwm/scripts/monitor-switch.sh
+    ~/.config/bspwm/scripts/monitor-switch.sh --toggle
 
 # screenshots and clipboard
 Print

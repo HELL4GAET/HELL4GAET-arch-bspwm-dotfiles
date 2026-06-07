@@ -1,6 +1,7 @@
 #!/bin/sh
 
 export PATH="$HOME/.local/bin:$HOME/go/bin:$PATH"
+export XCURSOR_THEME="Bibata-Modern-Ice"
 
 start_once() {
     command -v "$1" >/dev/null 2>&1 || return 0
@@ -43,9 +44,14 @@ if [ -n "$primary_monitor" ]; then
     bspc monitor "$primary_monitor" -d 1 2 3 4 5
 fi
 
+mkdir -p "$HOME/.cache"
 monitor_switch="$HOME/.config/bspwm/scripts/monitor-switch.sh"
 if [ -x "$monitor_switch" ]; then
-    "$monitor_switch" >/tmp/monitor-switch.log 2>&1 || true
+    if ! "$monitor_switch" >"$HOME/.cache/monitor-switch.log" 2>&1; then
+        "$HOME/.config/polybar/launch.sh" &
+    fi
+else
+    "$HOME/.config/polybar/launch.sh" &
 fi
 
 bspc rule -a feh state=floating
@@ -57,7 +63,6 @@ wallpaper
 pgrep -x dunst >/dev/null || dunst &
 pgrep -x picom >/dev/null || picom --config "$HOME/.config/picom/picom.conf" &
 start_once alttab -w 1 -d 1 -sc 0
-"$HOME/.config/polybar/launch.sh" &
 start_once nm-applet
 start_once blueman-applet
 start_once flameshot
