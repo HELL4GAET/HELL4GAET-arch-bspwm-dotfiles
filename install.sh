@@ -275,6 +275,24 @@ configure_hardware() {
   echo "  Adapter: ${adapter:-not found}"
 }
 
+validate_dotfiles() {
+  local required=(
+    "$HOME/.config/bspwm/scripts/monitor-switch.sh"
+    "$HOME/.config/polybar/config.ini"
+    "$HOME/.config/polybar/modules.ini"
+    "$HOME/.config/dunst/dunstrc"
+    "$HOME/.local/bin/wallpaper"
+  )
+  local path
+
+  for path in "${required[@]}"; do
+    if [[ ! -e "$path" ]]; then
+      echo "Missing installed file: $path" >&2
+      return 1
+    fi
+  done
+}
+
 install_dotfiles() {
   copy_dir "$ROOT_DIR/config/bspwm" "$HOME/.config/bspwm"
   copy_dir "$ROOT_DIR/config/sxhkd" "$HOME/.config/sxhkd"
@@ -310,6 +328,7 @@ install_dotfiles() {
   configure_hardware
   chmod +x "$HOME/.config/bspwm/bspwmrc" "$HOME/.config/polybar/launch.sh" "$HOME/.local/bin/"*
   find "$HOME/.config/bspwm/scripts" -type f -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
+  validate_dotfiles
 }
 
 enable_services() {

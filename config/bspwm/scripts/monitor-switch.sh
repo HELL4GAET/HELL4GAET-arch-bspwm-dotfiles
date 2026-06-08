@@ -26,9 +26,14 @@ CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
 PROFILE_FILE="$CACHE_DIR/monitor-profile"
 LOCK_FILE="$CACHE_DIR/monitor-switch-v2.lock"
 TOP_PADDING=44
+BOTTOM_PADDING=0
 
 connected_outputs() {
     xrandr --query | awk '$2 == "connected" {print $1}'
+}
+
+known_outputs() {
+    xrandr --query | awk '$2 == "connected" || $2 == "disconnected" {print $1}'
 }
 
 active_geometry() {
@@ -120,7 +125,8 @@ apply_scale_profile() {
             rofi_font="$EXTERNAL_ROFI_FONT"
             cursor_size="$EXTERNAL_CURSOR_SIZE"
             qt_scale="$EXTERNAL_SCALE"
-            TOP_PADDING=86
+            TOP_PADDING=72
+            BOTTOM_PADDING=14
             ;;
         laptop)
             xft_dpi="$LAPTOP_XFT_DPI"
@@ -128,7 +134,8 @@ apply_scale_profile() {
             rofi_font="$LAPTOP_ROFI_FONT"
             cursor_size="$LAPTOP_CURSOR_SIZE"
             qt_scale=1
-            TOP_PADDING=56
+            TOP_PADDING=50
+            BOTTOM_PADDING=6
             ;;
         *)
             printf 'monitor-switch: unknown scale profile: %s\n' "$profile" >&2
@@ -160,7 +167,7 @@ apply_scale_profile() {
 turn_off_other_outputs() {
     local keep="$1"
 
-    connected_outputs | while read -r output; do
+    known_outputs | while read -r output; do
         if [[ "$output" != "$keep" ]]; then
             xrandr --output "$output" --off || true
         fi
@@ -200,10 +207,16 @@ restart_polybar() {
     "$launcher" 9>&- >/tmp/monitor-switch-polybar.log 2>&1 || true
 }
 
+reload_dunst() {
+    command -v dunstctl >/dev/null 2>&1 || return 0
+    dunstctl reload 2>/dev/null || true
+}
+
 apply_bspwm_padding() {
     local monitor="$1"
     command -v bspc >/dev/null 2>&1 || return 0
     bspc config -m "$monitor" top_padding "$TOP_PADDING" || true
+    bspc config -m "$monitor" bottom_padding "$BOTTOM_PADDING" || true
 }
 
 main() {
@@ -254,6 +267,7 @@ main() {
     command -v wallpaper >/dev/null 2>&1 && wallpaper 9>&- || true
     restart_polybar
     apply_bspwm_padding "$active_monitor"
+    reload_dunst
 }
 
 main "$@"
