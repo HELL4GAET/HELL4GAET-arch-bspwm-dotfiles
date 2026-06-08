@@ -19,7 +19,7 @@
 
 | Бинд | Действие |
 | --- | --- |
-| `super + Return` | Открыть Alacritty |
+| `super + Return` | Открыть Kitty |
 | `super + d` | Rofi app launcher |
 | `super + shift + d` | Rofi run prompt |
 | `super + shift + Return` | Rofi window switcher |

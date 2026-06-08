@@ -1,11 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-wallpaper="$HOME/.config/bspwm/wallpaper.png"
-image_args=(-c 1e222aff)
+wallpaper="$(readlink -f "$HOME/.config/bspwm/wallpaper.png")"
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/lockscreen"
+blurred="$cache_dir/blurred.png"
 
-if [[ -e "$wallpaper" ]]; then
-  image_args=(-i "$wallpaper" --fill)
+mkdir -p "$cache_dir"
+
+if [[ -f "$wallpaper" && ( ! -f "$blurred" || "$wallpaper" -nt "$blurred" ) ]]; then
+  ffmpeg -hide_banner -loglevel error -y \
+    -i "$wallpaper" \
+    -vf "gblur=sigma=18,eq=brightness=-0.28:saturation=0.8" \
+    -frames:v 1 "$blurred"
+fi
+
+image_args=(-c 10131cff)
+if [[ -f "$blurred" ]]; then
+  image_args=(-i "$blurred" --fill)
 fi
 
 i3lock \
@@ -14,43 +25,43 @@ i3lock \
   "${image_args[@]}" \
   --clock \
   --indicator \
-  --radius 120 \
-  --ring-width 7 \
-  --ind-pos="x+w/2:y+h*0.58" \
-  --time-pos="x+w/2:y+h*0.24" \
-  --date-pos="tx:ty+54" \
-  --greeter-pos="x+w/2:y+h*0.43" \
+  --radius 108 \
+  --ring-width 6 \
+  --ind-pos="x+w/2:y+h*0.61" \
+  --time-pos="x+w/2:y+h*0.30" \
+  --date-pos="tx:ty+50" \
+  --greeter-pos="x+w/2:y+h*0.48" \
   --time-str="%H:%M" \
   --date-str="%A, %d %B" \
-  --greeter-text="Locked" \
+  --greeter-text="hell4gaet" \
   --verif-text="Checking" \
-  --wrong-text="Wrong password" \
+  --wrong-text="Try again" \
   --noinput-text="" \
-  --lock-text="Locking" \
+  --lock-text="" \
   --lockfailed-text="Lock failed" \
   --time-font="JetBrainsMono Nerd Font" \
   --date-font="JetBrainsMono Nerd Font" \
   --greeter-font="JetBrainsMono Nerd Font" \
   --verif-font="JetBrainsMono Nerd Font" \
   --wrong-font="JetBrainsMono Nerd Font" \
-  --time-size=74 \
-  --date-size=22 \
-  --greeter-size=24 \
-  --verif-size=18 \
-  --wrong-size=18 \
-  --time-color=ffffffff \
-  --date-color=d8dee9ff \
-  --greeter-color=e5e9f0ff \
-  --verif-color=88c0d0ff \
-  --wrong-color=bf616aff \
-  --inside-color=1e222acc \
-  --ring-color=6ea8ffff \
-  --insidever-color=1e222acc \
-  --ringver-color=88c0d0ff \
-  --insidewrong-color=1e222acc \
-  --ringwrong-color=bf616aff \
+  --time-size=68 \
+  --date-size=20 \
+  --greeter-size=18 \
+  --verif-size=16 \
+  --wrong-size=16 \
+  --time-color=e0e2efff \
+  --date-color=a9b1d6ff \
+  --greeter-color=b3c5ffff \
+  --verif-color=b3c5ffff \
+  --wrong-color=ffb4abff \
+  --inside-color=10131ccc \
+  --ring-color=2e3040ff \
+  --insidever-color=10131ccc \
+  --ringver-color=b3c5ffff \
+  --insidewrong-color=10131ccc \
+  --ringwrong-color=ffb4abff \
   --line-color=00000000 \
   --separator-color=00000000 \
-  --keyhl-color=a3be8cff \
-  --bshl-color=bf616aff \
+  --keyhl-color=d1bdf6ff \
+  --bshl-color=ffb4abff \
   --no-modkey-text

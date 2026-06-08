@@ -1,0 +1,6 @@
+* {
+    generated-background: #10131ce6;
+    generated-surface: #1d1f29f2;
+    generated-foreground: #e0e2ef;
+    generated-primary: #b3c5ff;
+}

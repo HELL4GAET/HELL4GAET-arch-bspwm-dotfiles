@@ -41,15 +41,45 @@ alias dstop="sudo systemctl stop docker.service docker.socket"
 alias dstatus="systemctl status docker.service docker.socket"
 
 function fish_prompt
-    set_color 61afef
-    printf " "
-    set_color normal
-    printf "%s@%s " $USER (prompt_hostname)
-    set_color $fish_color_cwd
+    set -l last_status $status
+
+    if test $CMD_DURATION
+        printf "\n"
+    end
+
+    set_color bb9af7
     printf "%s" (prompt_pwd)
-    set_color normal
+
+    if command git rev-parse --is-inside-work-tree >/dev/null 2>&1
+        set -l branch (command git branch --show-current 2>/dev/null)
+        if test -z "$branch"
+            set branch (command git rev-parse --short HEAD 2>/dev/null)
+        end
+        set_color 7dcfff
+        printf "   %s" $branch
+        if not command git diff --quiet --ignore-submodules HEAD 2>/dev/null
+            set_color f7768e
+            printf " *"
+        end
+    end
+
+    printf "\n"
+    set_color 7aa2f7
+    printf " "
+    set_color ffffff
+    printf "%s " $USER
+    if test $last_status -ne 0
+        set_color f7768e
+        printf "✘ %s " $last_status
+    end
+    set_color e0af68
     printf "> "
     set_color normal
+end
+
+if status is-interactive; and set -q KITTY_WINDOW_ID; and not set -q FASTFETCH_SHOWN
+    set -gx FASTFETCH_SHOWN 1
+    command -q fastfetch; and fastfetch
 end
 
 if command -q bat

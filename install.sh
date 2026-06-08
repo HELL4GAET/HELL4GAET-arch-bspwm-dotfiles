@@ -8,7 +8,7 @@ CORE_PACKAGES=(
   xorg-server xorg-xinit xorg-xrandr xorg-xset xorg-xsetroot
   xorg-setxkbmap xorg-xkbcomp xorg-xmodmap xorg-xrdb
   bspwm sxhkd polybar picom rofi dunst
-  alacritty kitty fish thunar mousepad firefox code btop keyd
+  kitty fish fastfetch thunar mousepad firefox code btop keyd matugen
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber
   networkmanager network-manager-applet bluez bluez-utils blueman
   pavucontrol pamixer playerctl brightnessctl
@@ -282,9 +282,10 @@ install_dotfiles() {
   copy_dir "$ROOT_DIR/config/picom" "$HOME/.config/picom"
   copy_dir "$ROOT_DIR/config/rofi" "$HOME/.config/rofi"
   copy_dir "$ROOT_DIR/config/dunst" "$HOME/.config/dunst"
-  copy_dir "$ROOT_DIR/config/alacritty" "$HOME/.config/alacritty"
   copy_dir "$ROOT_DIR/config/kitty" "$HOME/.config/kitty"
   copy_dir "$ROOT_DIR/config/fish" "$HOME/.config/fish"
+  copy_dir "$ROOT_DIR/config/fastfetch" "$HOME/.config/fastfetch"
+  copy_dir "$ROOT_DIR/config/matugen" "$HOME/.config/matugen"
   copy_dir "$ROOT_DIR/config/btop" "$HOME/.config/btop"
   copy_dir "$ROOT_DIR/config/flameshot" "$HOME/.config/flameshot"
   copy_dir "$ROOT_DIR/config/keyd" "$HOME/.config/keyd"
@@ -292,6 +293,7 @@ install_dotfiles() {
   copy_dir "$ROOT_DIR/config/JetBrains" "$HOME/.config/JetBrains"
   copy_dir "$ROOT_DIR/config/gtk-3.0" "$HOME/.config/gtk-3.0"
   copy_dir "$ROOT_DIR/config/gtk-4.0" "$HOME/.config/gtk-4.0"
+  copy_dir "$ROOT_DIR/config/xfce4" "$HOME/.config/xfce4"
   copy_dir "$ROOT_DIR/xkb" "$HOME/.xkb"
   copy_dir "$ROOT_DIR/themes/Dracula-pink-accent" "$HOME/.themes/Dracula-pink-accent"
   mkdir -p "$HOME/.local/bin"
@@ -305,7 +307,6 @@ install_dotfiles() {
   copy_file "$ROOT_DIR/bash_profile" "$HOME/.bash_profile"
   copy_file "$ROOT_DIR/gitconfig" "$HOME/.gitconfig"
   copy_file "$ROOT_DIR/config/mimeapps.list" "$HOME/.config/mimeapps.list"
-  ln -sfn "wallpapers/wallpaper.jpg" "$HOME/.config/bspwm/wallpaper.png"
   configure_hardware
   chmod +x "$HOME/.config/bspwm/bspwmrc" "$HOME/.config/polybar/launch.sh" "$HOME/.local/bin/"*
   find "$HOME/.config/bspwm/scripts" -type f -name '*.sh' -exec chmod +x {} + 2>/dev/null || true

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+wallpaper="${1:-$HOME/.config/bspwm/wallpaper.png}"
+wallpaper="$(readlink -f "$wallpaper")"
+
+if ! command -v matugen >/dev/null 2>&1; then
+    printf 'matugen is not installed\n' >&2
+    exit 1
+fi
+
+matugen image --type scheme-vibrant --prefer saturation "$wallpaper"

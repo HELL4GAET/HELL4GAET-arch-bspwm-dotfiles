@@ -1,0 +1,10 @@
+[config]
+
+[templates.kitty]
+input_path = "~/.config/matugen/templates/kitty-colors.conf"
+output_path = "~/.config/kitty/colors-generated.conf"
+post_hook = "pkill -USR1 kitty || true"
+
+[templates.rofi]
+input_path = "~/.config/matugen/templates/rofi-colors.rasi"
+output_path = "~/.config/rofi/colors-generated.rasi"

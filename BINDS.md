@@ -6,7 +6,7 @@
 
 | Keybind | Action |
 | --- | --- |
-| `Super + Enter` | Open Alacritty |
+| `Super + Enter` | Open Kitty |
 | `Super + D` | App launcher |
 | `Super + Shift + D` | Run command |
 | `Super + Shift + Enter` | Window switcher |
@@ -16,6 +16,7 @@
 | `Super + Shift + P` | Audio settings |
 | `Super + Shift + B` | Bluetooth manager |
 | `Super + Shift + X` | Power menu |
+| `Super + Shift + M` | Toggle monitor profile |
 
 ## Screenshots
 

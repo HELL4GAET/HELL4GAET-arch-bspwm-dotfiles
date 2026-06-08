@@ -73,11 +73,12 @@ startx
 Основной рабочий стол:
 
 - BSPWM, SXHKD, Polybar, Picom, Rofi, Dunst и Alttab;
-- Alacritty, Kitty, Fish и Bash;
+- Kitty с Fish, кастомным prompt и Fastfetch;
 - PipeWire, WirePlumber, Pavucontrol и управление громкостью;
 - NetworkManager, Blueman и Bluetooth;
 - Thunar, Firefox, Code OSS, Telegram Desktop, MPV и Flameshot;
 - JetBrainsMono Nerd Font, Noto Fonts и Papirus;
+- Matugen-based цвета для Kitty и Rofi;
 - белый курсор `Bibata-Modern-Ice`;
 - lockscreen через `i3lock-color`;
 - GTK-тема `Dracula-pink-accent`.
@@ -176,7 +177,8 @@ pgrep -a sxhkd
 
 ## Polybar
 
-Слева находятся рабочие столы, в центре температура, память и CPU. Справа:
+Слева находятся синий значок Arch Linux и рабочие столы, в центре температура,
+память и CPU. Справа расположен приглушённый системный блок:
 
 - батарея;
 - яркость;
@@ -185,22 +187,45 @@ pgrep -a sxhkd
 - часы;
 - Bluetooth;
 - Wi-Fi;
-- питание.
 
 Общий system tray отключён, поэтому иконки запущенных приложений в Polybar не
-попадают. Значок Bluetooth открывает `blueman-manager`, Wi-Fi открывает
-`nm-connection-editor`.
+попадают. Синий значок Arch Linux слева открывает powermenu. Значок Bluetooth
+открывает `blueman-manager`, Wi-Fi открывает `nm-connection-editor`.
 
 ## Picom
 
-Picom настроен на минимальный визуальный слой:
+Picom настроен на ML4W-inspired визуальный слой:
 
 - backend `glx`;
 - VSync включён;
-- тени выключены;
-- blur выключен;
-- скругления выключены;
-- fading и прозрачность выключены.
+- мягкие тени включены;
+- gaussian blur включён для прозрачных окон;
+- fading включён;
+- активные окна имеют opacity `0.90`, неактивные `0.78`;
+- скругления `14 px`.
+
+## Kitty, Fish и GoLand
+
+`Super+Enter` открывает Kitty. Alacritty не используется и не устанавливается.
+Kitty запускает Fish, использует Tokyo Night/Matugen цвета, прозрачность `0.62`,
+скрытые декорации, powerline tabs и небольшой cursor trail.
+
+Fish prompt показывает текущий путь, git branch, затем с новой строки значок
+Arch Linux и пользователя `hell4gaet`. При старте интерактивного Kitty один раз
+показывается Fastfetch.
+
+GoLand 2026.1 настроен на Fish во встроенном терминале через:
+
+```text
+~/.config/JetBrains/GoLand2026.1/options/terminal-local.xml
+```
+
+## Rofi и powermenu
+
+Rofi использует прозрачную Tokyo Night/Matugen тему. `Super+D` открывает меню
+приложений, `Super+Shift+D` — run prompt, `Super+Shift+Enter` — переключатель
+окон. Powermenu открывается через `Super+Shift+X` или левый значок Arch Linux в
+Polybar.
 
 ## Обои
 

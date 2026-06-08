@@ -1,0 +1,60 @@
+@define-color tn_bg #10131c;
+@define-color tn_surface #1d1f29;
+@define-color tn_surface_alt #2e3040;
+@define-color tn_fg #e0e2ef;
+@define-color tn_muted #8e909c;
+@define-color tn_blue #b3c5ff;
+
+window,
+.background {
+  background-color: @tn_bg;
+  color: @tn_fg;
+}
+
+headerbar,
+toolbar,
+.primary-toolbar {
+  background-color: @tn_surface;
+  color: @tn_fg;
+  border-color: @tn_surface_alt;
+}
+
+sidebar,
+.sidebar,
+placessidebar {
+  background-color: @tn_surface;
+  color: @tn_fg;
+}
+
+treeview,
+iconview {
+  background-color: @tn_bg;
+  color: @tn_fg;
+}
+
+treeview:selected,
+iconview:selected,
+row:selected {
+  background-color: @tn_surface_alt;
+  color: #ffffff;
+}
+
+entry,
+button {
+  border-radius: 8px;
+}
+
+entry {
+  background-color: @tn_surface;
+  color: @tn_fg;
+  border-color: @tn_surface_alt;
+}
+
+button:hover {
+  background-color: @tn_surface_alt;
+}
+
+selection {
+  background-color: @tn_blue;
+  color: @tn_bg;
+}

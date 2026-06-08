@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-choice="$(printf 'Lock\nLogout\nSuspend\nReboot\nShutdown' | rofi -dmenu -p power)"
+choice="$(printf 'Lock\nLogout\nSuspend\nReboot\nShutdown' \
+  | rofi -dmenu -p power -theme "$HOME/.config/rofi/tokyonight.rasi")"
 
 case "$choice" in
   Lock)

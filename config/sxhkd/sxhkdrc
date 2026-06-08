@@ -4,16 +4,16 @@ super + Escape
 
 # apps
 super + Return
-    alacritty
+    kitty
 
 super + d
-    rofi -show drun
+    rofi -show drun -theme ~/.config/rofi/tokyonight.rasi
 
 super + shift + d
-    rofi -show run
+    rofi -show run -theme ~/.config/rofi/tokyonight.rasi
 
 super + shift + Return
-    rofi -show window
+    rofi -show window -theme ~/.config/rofi/tokyonight.rasi
 
 super + shift + f
     firefox
