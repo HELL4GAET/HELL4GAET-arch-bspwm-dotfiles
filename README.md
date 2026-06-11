@@ -24,7 +24,7 @@ cd HELL4GAET-arch-bspwm-dotfiles
 3. установить dotfiles;
 4. включить системные сервисы.
 
-Developer tools, GoLand и дисплейный менеджер `ly` устанавливаются только по
+Developer tools, Neovim, GoLand и дисплейный менеджер `ly` устанавливаются только по
 отдельному подтверждению.
 
 После завершения:
@@ -40,6 +40,39 @@ startx
 ```
 
 Терминал открывается через `Super+Enter`, меню приложений через `Super+D`.
+
+## Рекомендуемые настройки archinstall
+
+Запускай `archinstall` из актуального официального Arch Linux ISO. Перед
+запуском подключи интернет; Wi-Fi при необходимости настраивается через
+`iwctl`.
+
+Для чистой установки под этот репозиторий рекомендуется:
+
+- `Disk configuration`: автоматическая разметка свободного диска или ручная
+  разметка, если рядом уже установлена другая ОС; файловая система `btrfs` или
+  `ext4`;
+- `Bootloader`: `systemd-boot` для обычной UEFI-установки, `GRUB` или `Limine`
+  для BIOS и специфических multiboot-сценариев;
+- `Swap`: включить;
+- `Hostname`: любое удобное имя;
+- `Root password`: по желанию;
+- `User account`: создать обычного пользователя и дать ему `sudo`;
+- `Profile`: `Minimal`, без Desktop/Window Manager profile;
+- `Audio`: можно не выбирать, потому что installer поставит PipeWire и
+  WirePlumber;
+- `Network configuration`: `NetworkManager`;
+- `Kernels`: стандартный `linux`; `linux-lts` можно добавить вторым;
+- `Additional packages`: оставить пустым;
+- `Timezone`, locale и keyboard layout: выбрать свои; X11-раскладки позже
+  настроит этот репозиторий.
+
+После завершения `archinstall` загрузись в установленную систему, войди обычным
+пользователем и выполни команды из раздела «Быстрая установка». Не выбирай в
+`archinstall` готовый Desktop/BSPWM profile: пакеты и конфиги рабочего стола
+должны устанавливаться `./install.sh`, чтобы не получить конфликтующие настройки.
+Актуальные названия и ограничения параметров описаны в
+[официальной документации archinstall](https://archinstall.archlinux.page/installing/guided.html).
 
 ## Установка одной командой
 
@@ -62,6 +95,12 @@ startx
 ./install.sh --services
 ./install.sh --dev
 ./install.sh --goland
+./install.sh --docker
+./install.sh --go
+./install.sh --rust
+./install.sh --jdk
+./install.sh --browser-firefox
+./install.sh --browser-chromium
 ./install.sh --login-manager
 ./install.sh --help
 ```
@@ -85,12 +124,24 @@ startx
 
 Опционально мастер может установить:
 
-- developer tools: Go, Rust, Node.js, Python, JDK, Docker, GitHub CLI;
+- developer tools: Neovim, Go, Rust, Node.js, Python, JDK, Docker, GitHub CLI;
 - GoLand;
 - дисплейный менеджер `ly`.
 
 Профили браузеров, SSH-ключи, VPN, Telegram session, JetBrains license,
 кэши и пароли в репозиторий не входят.
+
+Git identity намеренно не устанавливается. После установки задай собственные
+значения:
+
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+```
+
+Скрипты рабочего стола также явно устанавливают `libnotify`,
+`nm-connection-editor` и `xdg-utils`, необходимые для уведомлений, управления
+сетевыми подключениями и открытия URL.
 
 ## Безопасность установки
 
@@ -215,9 +266,10 @@ Picom настроен на ML4W-inspired визуальный слой:
 `Super+Enter` открывает Kitty. Alacritty не используется и не устанавливается.
 Kitty запускает Fish, использует Tokyo Night/Matugen цвета, прозрачность `0.62`,
 скрытые декорации, powerline tabs и небольшой cursor trail.
+В Kitty `Ctrl+V` явно вставляет содержимое системного clipboard.
 
 Fish prompt показывает текущий путь, git branch, затем с новой строки значок
-Arch Linux и пользователя `hell4gaet`. При старте интерактивного Kitty один раз
+Arch Linux и текущего пользователя. При старте интерактивного Kitty один раз
 показывается Fastfetch.
 
 GoLand 2026.1 настроен на Fish во встроенном терминале через:
@@ -225,6 +277,19 @@ GoLand 2026.1 настроен на Fish во встроенном термин�
 ```text
 ~/.config/JetBrains/GoLand2026.1/options/terminal-local.xml
 ```
+
+Также устанавливаются тёмная тема интерфейса GoLand, тёмная цветовая схема
+редактора, compact UI и увеличенные editor/terminal fonts.
+
+## Клавиатура и раскладки
+
+Используются раскладки `us,ructrl`, переключение выполняется через
+`Alt+Shift`. В русской раскладке сочетания с физическим `Ctrl` используют
+латинские буквы, поэтому `Ctrl+C`, `Ctrl+V`, `Ctrl+X` и другие shortcut работают
+без ручного переключения на английский.
+
+Caps Lock остаётся обычным Caps Lock и не переназначается в Ctrl. `keyd`
+используется только для преобразования аппаратной клавиши `Fn` в `F13`.
 
 ## Rofi и powermenu
 
@@ -270,6 +335,8 @@ Print                Flameshot
 ```bash
 ./install.sh --check
 ```
+
+Команда также проверяет синтаксис shell/Fish-скриптов и конфигурацию `keyd`.
 
 Также полезно проверить:
 

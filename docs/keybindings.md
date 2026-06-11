@@ -8,6 +8,10 @@
 - `super` = клавиша Windows/Meta.
 - `<leader>` в LazyVim = `Space`.
 - `<localleader>` в LazyVim = `\`.
+- Caps Lock работает как обычный Caps Lock; для shortcut используется
+  физический `Ctrl`.
+- В русской раскладке `Ctrl+C`, `Ctrl+V`, `Ctrl+X` и другие сочетания
+  автоматически используют латинские буквы.
 - В LazyVim почти всё можно подсмотреть через which-key: нажми `Space` и жди
   всплывающее меню доступных команд.
 

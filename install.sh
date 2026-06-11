@@ -11,8 +11,9 @@ CORE_PACKAGES=(
   kitty fish fastfetch thunar mousepad firefox code btop keyd matugen
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber
   networkmanager network-manager-applet bluez bluez-utils blueman
-  pavucontrol pamixer playerctl brightnessctl
+  nm-connection-editor pavucontrol pamixer playerctl brightnessctl libnotify
   flameshot xclip feh mpv telegram-desktop lxappearance
+  xdg-utils
   papirus-icon-theme ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji ttf-dejavu
   git base-devel ripgrep
 )
@@ -26,7 +27,7 @@ AUR_DESKTOP_PACKAGES=(
 AUR_GOLAND_PACKAGES=(goland goland-jre)
 
 DEV_PACKAGES=(
-  nodejs npm pnpm
+  neovim nodejs npm pnpm
   python python-pip python-pipx
   go rustup jdk-openjdk
   docker docker-compose
@@ -65,7 +66,7 @@ Options:
   --browser-chromium  Install Chromium.
   --login-manager     Install and enable ly display manager.
   --dotfiles          Copy dotfiles into \$HOME with timestamped backups.
-  --services          Enable NetworkManager, bluetooth and PipeWire user units.
+  --services          Enable NetworkManager, Bluetooth, keyd and PipeWire.
   --all               Install desktop packages, AUR, dotfiles and services.
   --help              Show this help.
 
@@ -293,7 +294,33 @@ validate_dotfiles() {
   done
 }
 
+validate_sources() {
+  local scripts=(
+    "$ROOT_DIR/install.sh"
+    "$ROOT_DIR/xinitrc"
+    "$ROOT_DIR/config/bspwm/bspwmrc"
+    "$ROOT_DIR/config/bspwm/scripts/monitor-switch.sh"
+    "$ROOT_DIR/config/polybar/launch.sh"
+    "$ROOT_DIR"/local/bin/*
+  )
+  local script
+
+  for script in "${scripts[@]}"; do
+    bash -n "$script"
+  done
+
+  if command -v fish >/dev/null 2>&1; then
+    fish -n "$ROOT_DIR/config/fish/config.fish"
+  fi
+  if command -v keyd >/dev/null 2>&1; then
+    keyd check "$ROOT_DIR/config/keyd/default.conf"
+  fi
+
+  echo "Repository configuration syntax: OK"
+}
+
 install_dotfiles() {
+  validate_sources
   copy_dir "$ROOT_DIR/config/bspwm" "$HOME/.config/bspwm"
   copy_dir "$ROOT_DIR/config/sxhkd" "$HOME/.config/sxhkd"
   copy_dir "$ROOT_DIR/config/polybar" "$HOME/.config/polybar"
@@ -323,7 +350,6 @@ install_dotfiles() {
   copy_file "$ROOT_DIR/gtkrc-2.0" "$HOME/.gtkrc-2.0"
   copy_file "$ROOT_DIR/bashrc" "$HOME/.bashrc"
   copy_file "$ROOT_DIR/bash_profile" "$HOME/.bash_profile"
-  copy_file "$ROOT_DIR/gitconfig" "$HOME/.gitconfig"
   copy_file "$ROOT_DIR/config/mimeapps.list" "$HOME/.config/mimeapps.list"
   configure_hardware
   chmod +x "$HOME/.config/bspwm/bspwmrc" "$HOME/.config/polybar/launch.sh" "$HOME/.local/bin/"*
@@ -402,6 +428,7 @@ case "${1:-}" in
   --check)
     detect
     check_packages
+    validate_sources
     ;;
   --packages)
     install_packages

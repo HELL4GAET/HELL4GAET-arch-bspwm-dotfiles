@@ -5,7 +5,15 @@ config/mozilla/
 config/pritunl/
 config/Code - OSS/Cache/
 config/Code - OSS/CachedData/
+config/Code - OSS/logs/
 config/Code - OSS/User/workspaceStorage/
+config/JetBrains/**/app-internal-state.db
+config/JetBrains/**/event-log-metadata/
+config/JetBrains/**/goland.key
+config/JetBrains/**/projects/
+config/JetBrains/**/ssl/
+config/JetBrains/**/tasks/
+config/JetBrains/**/workspace/
 *.log
 *.bak
 *.backup

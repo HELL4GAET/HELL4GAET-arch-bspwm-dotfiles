@@ -33,7 +33,7 @@ i3lock \
   --greeter-pos="x+w/2:y+h*0.48" \
   --time-str="%H:%M" \
   --date-str="%A, %d %B" \
-  --greeter-text="hell4gaet" \
+  --greeter-text="${USER:-user}" \
   --verif-text="Checking" \
   --wrong-text="Try again" \
   --noinput-text="" \

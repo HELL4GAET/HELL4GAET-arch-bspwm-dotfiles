@@ -29,8 +29,8 @@
     "terminal.integrated.fontFamily": "'JetBrainsMono Nerd Font', 'JetBrains Mono', monospace",
     "terminal.integrated.fontSize": 14,
     "go.useLanguageServer": true,
-    "go.gopath": "/home/hell4gaet/go",
-    "go.toolsGopath": "/home/hell4gaet/go",
+    "go.gopath": "${env:HOME}/go",
+    "go.toolsGopath": "${env:HOME}/go",
     "go.formatTool": "gofumpt",
     "gopls": {
         "ui.semanticTokens": true,
