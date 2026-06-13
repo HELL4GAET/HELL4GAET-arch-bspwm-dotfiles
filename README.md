@@ -16,24 +16,28 @@ cd HELL4GAET-arch-bspwm-dotfiles
 ./install.sh
 ```
 
-`./install.sh` запускает интерактивный мастер. Для обычной установки отвечай
-`Y` на первые четыре вопроса:
+`./install.sh` запускает интерактивный мастер. Для обычной установки принимай
+предложенные по умолчанию ответы:
 
 1. установить основные пакеты рабочего стола;
-2. установить обязательные AUR-пакеты;
-3. установить dotfiles;
-4. включить системные сервисы.
+2. установить desktop integration;
+3. установить CLI-инструменты;
+4. установить обязательные AUR-пакеты;
+5. установить dotfiles;
+6. включить системные сервисы;
+7. включить LightDM.
 
-Developer tools, Neovim, GoLand и дисплейный менеджер `ly` устанавливаются только по
-отдельному подтверждению.
+Developer tools и GoLand устанавливаются только по отдельному подтверждению.
+LightDM с GTK-greeter входит в обычный сценарий установки.
 
-После завершения:
+После завершения перезагрузи систему:
 
 ```bash
 reboot
 ```
 
-Войди в TTY и запусти:
+Появится графический вход LightDM. Если этап login manager был пропущен, войди
+в TTY и запусти:
 
 ```bash
 startx
@@ -82,16 +86,24 @@ startx
 ./install.sh --all
 ```
 
-Он устанавливает основные пакеты, обязательные AUR-пакеты, dotfiles и сервисы.
-Пароль `sudo` всё равно потребуется.
+Он устанавливает основные пакеты, desktop integration, CLI tools, обязательные
+AUR-пакеты, dotfiles, сервисы и LightDM. Пароль `sudo` всё равно потребуется.
 
 Доступные отдельные этапы:
 
 ```bash
 ./install.sh --check
 ./install.sh --packages
+./install.sh --integration
+./install.sh --cli
 ./install.sh --aur
 ./install.sh --dotfiles
+./install.sh --doctor
+./install.sh --dry-run --all
+./install.sh --update
+./install.sh --restore
+./install.sh --uninstall
+./install.sh --cleanup
 ./install.sh --services
 ./install.sh --dev
 ./install.sh --goland
@@ -113,6 +125,7 @@ startx
 
 - BSPWM, SXHKD, Polybar, Picom, Rofi, Dunst и Alttab;
 - Kitty с Fish, кастомным prompt и Fastfetch;
+- Neovim с базовой конфигурацией LazyVim и lockfile плагинов;
 - PipeWire, WirePlumber, Pavucontrol и управление громкостью;
 - NetworkManager, Blueman и Bluetooth;
 - Thunar, Firefox, Code OSS, Telegram Desktop, MPV и Flameshot;
@@ -121,12 +134,17 @@ startx
 - белый курсор `Bibata-Modern-Ice`;
 - lockscreen через `i3lock-color`;
 - GTK-тема `Dracula-pink-accent`.
+- Polkit-agent, автоматическое подключение накопителей и интеграция Thunar с
+  MTP, SMB, архивами, thumbnails и корзиной;
+- idle locking перед DPMS/suspend через `xss-lock`;
+- ручной тёплый режим экрана через `redshift`;
+- CLI-набор `fzf`, `fd`, `bat`, `eza`, `zoxide`, `jq`, `lazygit`,
+  `git-delta`, `direnv`, `tealdeer`, `dust`, `duf`, `ncdu` и `trash-cli`.
 
 Опционально мастер может установить:
 
-- developer tools: Neovim, Go, Rust, Node.js, Python, JDK, Docker, GitHub CLI;
+- developer tools: Go, Rust, Node.js, Python, JDK, Docker, GitHub CLI;
 - GoLand;
-- дисплейный менеджер `ly`.
 
 Профили браузеров, SSH-ключи, VPN, Telegram session, JetBrains license,
 кэши и пароли в репозиторий не входят.
@@ -151,6 +169,22 @@ git config --global user.email "you@example.com"
 ~/.dotfiles-backup/YYYYMMDD-HHMMSS/
 ```
 
+Проверить действия без изменения системы:
+
+```bash
+./install.sh --dry-run --all
+```
+
+Обновить dotfiles с новым backup или восстановить последний backup:
+
+```bash
+./install.sh --update
+./install.sh --restore
+```
+
+`--uninstall` переносит управляемые файлы в safety-backup. Их список хранится
+в `~/.local/state/hell4gaet-dotfiles/manifest`.
+
 Установщик нужно запускать обычным пользователем. Запуск от `root` запрещён.
 
 После копирования автоматически определяются:
@@ -163,16 +197,19 @@ git config --global user.email "you@example.com"
 Найденные значения записываются в установленный
 `~/.config/polybar/modules.ini`.
 
-## Запуск с графическим логином
+## Графический вход
 
-По умолчанию используется `startx`. Для установки лёгкого login manager:
+Обычная установка использует LightDM с GTK-greeter. Отдельно установить или
+повторно включить его можно командой:
 
 ```bash
 ./install.sh --login-manager
 ```
 
-Команда устанавливает `ly` и включает `ly@tty1.service`. Autologin не
-настраивается.
+Команда устанавливает `lightdm` и `lightdm-gtk-greeter`, затем включает
+`lightdm.service`. Если SDDM, GDM или `ly` уже включён, installer остановится,
+чтобы не создать конфликт display managers. Autologin не настраивается.
+Без display manager по-прежнему можно использовать `startx`.
 
 ## Мониторы и HiDPI
 
@@ -281,6 +318,56 @@ GoLand 2026.1 настроен на Fish во встроенном термин�
 Также устанавливаются тёмная тема интерфейса GoLand, тёмная цветовая схема
 редактора, compact UI и увеличенные editor/terminal fonts.
 
+## CLI-инструменты
+
+После установки открой новый Fish или выполни `exec fish`.
+
+- `fzf` — интерактивный fuzzy-поиск. `Ctrl+R` ищет команду в history,
+  `Ctrl+Alt+F` вставляет найденный путь, `Ctrl+Alt+L` выбирает каталог.
+- `fd pattern [path]` — быстрый поиск файлов: `fd config ~/.config`.
+  В интерактивном Fish команда `find` является alias на `fd`.
+- `bat file` — просмотр файла с подсветкой и номерами строк. Интерактивный
+  `cat` использует `bat --paging=never`.
+- `eza` — современный `ls`: `ls`, `ll`, `tree`, либо напрямую
+  `eza -lah --git`.
+- `zoxide` — запоминает часто используемые каталоги: `z projects`,
+  `z finance`, `zi` для интерактивного выбора.
+- `jq` — обработка JSON: `jq . file.json`,
+  `curl -s URL | jq '.items[]'`.
+- `lazygit` — полноэкранный Git UI. Запусти `lazygit` внутри репозитория;
+  клавиша `?` показывает бинды.
+- `delta` — форматирует Git diff. Использование напрямую:
+  `git diff | delta`; глобальную настройку можно включить командой
+  `git config --global core.pager delta`.
+- `direnv` — проектные переменные окружения. Создай `.envrc`, например
+  `export APP_ENV=dev`, затем выполни `direnv allow`.
+- `tldr command` — короткие практические примеры: `tldr tar`.
+  Пакет называется `tealdeer`, команда — `tldr`.
+- `dust path` — наглядный размер каталогов. В Fish команда `du` использует
+  `dust`.
+- `duf` — таблица файловых систем и свободного места. В Fish команда `df`
+  использует `duf`.
+- `ncdu path` — интерактивный анализ занятого места с навигацией клавишами.
+- `trash-put file`, `trash-list`, `trash-restore`, `trash-empty` — безопасное
+  удаление и управление корзиной.
+- `shellcheck script.sh` — статический анализ shell-скрипта.
+- `shfmt -w script.sh` — форматирование shell-скрипта.
+
+## Neovim и LazyVim
+
+Installer копирует переносимую конфигурацию из `config/nvim` в
+`~/.config/nvim`. В репозитории хранятся только конфиги и lockfile плагинов;
+скачанные плагины, swap, undo, сессии и прочее runtime-состояние не хранятся.
+
+Первый запуск:
+
+```bash
+nvim
+```
+
+LazyVim автоматически установит плагины из `lazy-lock.json`. Карта основных
+биндов и настройки Go находятся в [docs/keybindings.md](docs/keybindings.md).
+
 ## Клавиатура и раскладки
 
 Используются раскладки `us,ructrl`, переключение выполняется через
@@ -312,6 +399,21 @@ wallpaper
 wallpaper --random
 ```
 
+## Тёплый режим экрана
+
+Правый клик по модулю яркости в Polybar переключает фиксированную температуру:
+
+- normal: `6500K`;
+- warm: `4200K`.
+
+Нет расписания, геолокации и постоянно работающего Redshift-процесса. Состояние
+сохраняется и повторно применяется после переключения монитора. Из терминала:
+
+```bash
+warm-screen toggle
+warm-screen status
+```
+
 ## Основные клавиши
 
 ```text
@@ -333,10 +435,28 @@ Print                Flameshot
 ## Проверка после установки
 
 ```bash
-./install.sh --check
+./install.sh --doctor
 ```
 
-Команда также проверяет синтаксис shell/Fish-скриптов и конфигурацию `keyd`.
+Команда проверяет пакеты, runtime-команды, шрифты, hardware detection,
+shell/Fish-скрипты, конфигурацию `keyd`, дисплей и display manager.
+
+Проверки репозитория:
+
+```bash
+make lint
+make check
+make dry-run
+make doctor
+```
+
+- `make lint` запускает ShellCheck и проверяет форматирование через shfmt;
+- `make check` запускает smoke-тесты installer и конфигов;
+- `make dry-run` показывает полную установку без изменений;
+- `make doctor` проверяет текущую систему.
+
+GitHub Actions автоматически выполняет `make lint` и `make check` при push и
+pull request.
 
 Также полезно проверить:
 

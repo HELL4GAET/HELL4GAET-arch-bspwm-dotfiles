@@ -83,9 +83,39 @@ if status is-interactive; and set -q KITTY_WINDOW_ID; and not set -q FASTFETCH_S
 end
 
 if command -q bat
-    alias cat="bat"
+    alias cat="bat --paging=never"
 end
 
 if command -q nvim
     alias n="nvim"
+end
+
+if command -q eza
+    alias ls="eza --icons=auto --group-directories-first"
+    alias ll="eza -lah --icons=auto --group-directories-first"
+    alias tree="eza --tree --icons=auto"
+end
+
+if command -q fd
+    alias find="fd"
+end
+
+if command -q dust
+    alias du="dust"
+end
+
+if command -q duf
+    alias df="duf"
+end
+
+if command -q zoxide
+    zoxide init fish | source
+end
+
+if command -q direnv
+    direnv hook fish | source
+end
+
+if status is-interactive; and command -q fzf
+    fzf --fish | source
 end

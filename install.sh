@@ -3,12 +3,15 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
+MANIFEST_FILE="$HOME/.local/state/hell4gaet-dotfiles/manifest"
+DRY_RUN=0
 
 CORE_PACKAGES=(
   xorg-server xorg-xinit xorg-xrandr xorg-xset xorg-xsetroot
   xorg-setxkbmap xorg-xkbcomp xorg-xmodmap xorg-xrdb
   bspwm sxhkd polybar picom rofi dunst
-  kitty fish fastfetch thunar mousepad firefox code btop keyd matugen
+  kitty fish fastfetch neovim thunar mousepad firefox code btop keyd matugen
+  lightdm lightdm-gtk-greeter
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber
   networkmanager network-manager-applet bluez bluez-utils blueman
   nm-connection-editor pavucontrol pamixer playerctl brightnessctl libnotify
@@ -16,6 +19,26 @@ CORE_PACKAGES=(
   xdg-utils
   papirus-icon-theme ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji ttf-dejavu
   git base-devel ripgrep
+)
+
+DESKTOP_INTEGRATION_PACKAGES=(
+  polkit-gnome udisks2 udiskie
+  gvfs gvfs-mtp gvfs-smb tumbler ffmpegthumbnailer
+  thunar-archive-plugin file-roller
+  xdg-desktop-portal xdg-desktop-portal-gtk
+  xss-lock redshift
+)
+
+CLI_PACKAGES=(
+  fzf fd bat eza zoxide jq
+  lazygit git-delta direnv tealdeer
+  dust duf ncdu trash-cli shellcheck shfmt
+)
+
+DEBUG_PACKAGES=(
+  alttab-debug
+  i3lock-color-debug
+  yay-debug
 )
 
 AUR_DESKTOP_PACKAGES=(
@@ -27,7 +50,7 @@ AUR_DESKTOP_PACKAGES=(
 AUR_GOLAND_PACKAGES=(goland goland-jre)
 
 DEV_PACKAGES=(
-  neovim nodejs npm pnpm
+  nodejs npm pnpm
   python python-pip python-pipx
   go rustup jdk-openjdk
   docker docker-compose
@@ -40,7 +63,7 @@ RUST_PACKAGES=(rustup)
 JDK_PACKAGES=(jdk-openjdk)
 FIREFOX_PACKAGES=(firefox)
 CHROMIUM_PACKAGES=(chromium)
-LOGIN_PACKAGES=(ly)
+LOGIN_PACKAGES=(lightdm lightdm-gtk-greeter)
 FORBIDDEN_PACKAGES=(
   tor torbrowser-launcher mpd ncmpcpp libreoffice-fresh libreoffice-still
   gparted kdenlive audacity obs-studio anki wireshark-qt veracrypt deluge
@@ -55,6 +78,8 @@ Options:
   (no option)         Start the interactive installation wizard.
   --check             Show detected hardware names and missing package groups.
   --packages          Install the curated BSPWM desktop package list.
+  --integration       Install lock, Polkit, automount and Thunar integration.
+  --cli               Install the curated command-line tools.
   --aur               Install desktop AUR packages; bootstraps yay if needed.
   --dev               Install optional developer packages.
   --goland            Install optional GoLand packages from AUR.
@@ -64,10 +89,16 @@ Options:
   --jdk               Install OpenJDK.
   --browser-firefox   Install Firefox.
   --browser-chromium  Install Chromium.
-  --login-manager     Install and enable ly display manager.
+  --login-manager     Install and enable LightDM with the GTK greeter.
   --dotfiles          Copy dotfiles into \$HOME with timestamped backups.
+  --update            Validate and update installed dotfiles with backups.
+  --restore [path]    Restore a backup (latest backup by default).
+  --uninstall         Remove files tracked by the installer manifest.
+  --doctor            Check packages, commands, fonts, configs and hardware.
+  --cleanup           Remove known debug packages and orphan dependencies.
+  --dry-run OPTION    Print actions for another installer option.
   --services          Enable NetworkManager, Bluetooth, keyd and PipeWire.
-  --all               Install desktop packages, AUR, dotfiles and services.
+  --all               Install the complete desktop, dotfiles, services and LightDM.
   --help              Show this help.
 
 Existing dotfiles are moved to a timestamped backup before replacement.
@@ -79,7 +110,7 @@ require_arch() {
     echo "This installer supports Arch Linux and pacman-based systems." >&2
     exit 1
   fi
-  if [[ ${EUID:-$(id -u)} -eq 0 ]]; then
+  if ((!DRY_RUN)) && [[ ${EUID:-$(id -u)} -eq 0 ]]; then
     echo "Run this installer as a regular user, not as root." >&2
     exit 1
   fi
@@ -133,6 +164,8 @@ check_group() {
 
 check_packages() {
   check_group "core desktop" "${CORE_PACKAGES[@]}"
+  check_group "desktop integration" "${DESKTOP_INTEGRATION_PACKAGES[@]}"
+  check_group "CLI tools" "${CLI_PACKAGES[@]}"
   check_group "desktop AUR" "${AUR_DESKTOP_PACKAGES[@]}"
   check_group "GoLand AUR" "${AUR_GOLAND_PACKAGES[@]}"
   check_group "developer" "${DEV_PACKAGES[@]}"
@@ -155,6 +188,12 @@ check_packages() {
 }
 
 install_group() {
+  if ((DRY_RUN)); then
+    printf '[dry-run] sudo pacman -S --needed'
+    printf ' %q' "$@"
+    printf '\n'
+    return 0
+  fi
   sudo pacman -S --needed "$@"
 }
 
@@ -180,16 +219,36 @@ install_packages() {
   install_group "${CORE_PACKAGES[@]}"
 }
 
+install_integration_packages() {
+  install_group "${DESKTOP_INTEGRATION_PACKAGES[@]}"
+}
+
+install_cli_packages() {
+  install_group "${CLI_PACKAGES[@]}"
+}
+
 install_dev_packages() {
   install_group "${DEV_PACKAGES[@]}"
 }
 
 install_aur_packages() {
+  if ((DRY_RUN)); then
+    printf '[dry-run] yay -S --needed'
+    printf ' %q' "${AUR_DESKTOP_PACKAGES[@]}"
+    printf '\n'
+    return 0
+  fi
   ensure_yay
   yay -S --needed "${AUR_DESKTOP_PACKAGES[@]}"
 }
 
 install_goland() {
+  if ((DRY_RUN)); then
+    printf '[dry-run] yay -S --needed'
+    printf ' %q' "${AUR_GOLAND_PACKAGES[@]}"
+    printf '\n'
+    return 0
+  fi
   ensure_yay
   yay -S --needed "${AUR_GOLAND_PACKAGES[@]}"
 }
@@ -202,16 +261,36 @@ install_docker() {
 }
 
 install_login_manager() {
+  local existing service
+  for service in sddm.service gdm.service ly@tty1.service; do
+    if systemctl is-enabled "$service" >/dev/null 2>&1; then
+      existing="$service"
+      break
+    fi
+  done
+  if [[ -n "${existing:-}" ]]; then
+    echo "An existing display manager is enabled: $existing" >&2
+    echo "Disable it explicitly before installing LightDM to avoid a login conflict." >&2
+    return 1
+  fi
   install_group "${LOGIN_PACKAGES[@]}"
-  sudo systemctl enable ly@tty1.service
+  if ((DRY_RUN)); then
+    echo "[dry-run] sudo systemctl enable --now lightdm.service"
+    return 0
+  fi
+  sudo systemctl enable --now lightdm.service
 }
 
 backup_path() {
   local target="$1"
   if [[ -e "$target" || -L "$target" ]]; then
-    mkdir -p "$BACKUP_DIR/$(dirname "${target#$HOME/}")"
-    mv "$target" "$BACKUP_DIR/${target#$HOME/}"
-    echo "Backed up $target -> $BACKUP_DIR/${target#$HOME/}"
+    if ((DRY_RUN)); then
+      echo "[dry-run] backup $target -> $BACKUP_DIR/${target#"$HOME"/}"
+      return 0
+    fi
+    mkdir -p "$BACKUP_DIR/$(dirname "${target#"$HOME"/}")"
+    mv "$target" "$BACKUP_DIR/${target#"$HOME"/}"
+    echo "Backed up $target -> $BACKUP_DIR/${target#"$HOME"/}"
   fi
 }
 
@@ -219,6 +298,10 @@ copy_dir() {
   local src="$1"
   local dst="$2"
   backup_path "$dst"
+  if ((DRY_RUN)); then
+    echo "[dry-run] copy directory $src -> $dst"
+    return 0
+  fi
   mkdir -p "$(dirname "$dst")"
   cp -R "$src" "$dst"
 }
@@ -227,6 +310,10 @@ copy_file() {
   local src="$1"
   local dst="$2"
   backup_path "$dst"
+  if ((DRY_RUN)); then
+    echo "[dry-run] copy file $src -> $dst"
+    return 0
+  fi
   mkdir -p "$(dirname "$dst")"
   cp "$src" "$dst"
 }
@@ -258,7 +345,7 @@ configure_hardware() {
       Battery)
         [[ -n "$battery" ]] || battery="${device##*/}"
         ;;
-      Mains|USB|USB_C)
+      Mains | USB | USB_C)
         [[ -n "$adapter" ]] || adapter="${device##*/}"
         ;;
     esac
@@ -319,6 +406,47 @@ validate_sources() {
   echo "Repository configuration syntax: OK"
 }
 
+manifest_paths() {
+  cat <<EOF
+$HOME/.config/bspwm
+$HOME/.config/sxhkd
+$HOME/.config/polybar
+$HOME/.config/picom
+$HOME/.config/rofi
+$HOME/.config/dunst
+$HOME/.config/kitty
+$HOME/.config/fish
+$HOME/.config/fastfetch
+$HOME/.config/matugen
+$HOME/.config/btop
+$HOME/.config/flameshot
+$HOME/.config/keyd
+$HOME/.config/nvim
+$HOME/.config/Code - OSS
+$HOME/.config/JetBrains
+$HOME/.config/gtk-3.0
+$HOME/.config/gtk-4.0
+$HOME/.config/xfce4
+$HOME/.xkb
+$HOME/.themes/Dracula-pink-accent
+$HOME/.xinitrc
+$HOME/.Xresources
+$HOME/.gtkrc-2.0
+$HOME/.bashrc
+$HOME/.bash_profile
+$HOME/.config/mimeapps.list
+EOF
+  for file in "$ROOT_DIR"/local/bin/*; do
+    printf '%s/.local/bin/%s\n' "$HOME" "$(basename "$file")"
+  done
+}
+
+write_manifest() {
+  ((DRY_RUN)) && return 0
+  mkdir -p "$(dirname "$MANIFEST_FILE")"
+  manifest_paths >"$MANIFEST_FILE"
+}
+
 install_dotfiles() {
   validate_sources
   copy_dir "$ROOT_DIR/config/bspwm" "$HOME/.config/bspwm"
@@ -334,6 +462,7 @@ install_dotfiles() {
   copy_dir "$ROOT_DIR/config/btop" "$HOME/.config/btop"
   copy_dir "$ROOT_DIR/config/flameshot" "$HOME/.config/flameshot"
   copy_dir "$ROOT_DIR/config/keyd" "$HOME/.config/keyd"
+  copy_dir "$ROOT_DIR/config/nvim" "$HOME/.config/nvim"
   copy_dir "$ROOT_DIR/config/Code - OSS" "$HOME/.config/Code - OSS"
   copy_dir "$ROOT_DIR/config/JetBrains" "$HOME/.config/JetBrains"
   copy_dir "$ROOT_DIR/config/gtk-3.0" "$HOME/.config/gtk-3.0"
@@ -351,18 +480,190 @@ install_dotfiles() {
   copy_file "$ROOT_DIR/bashrc" "$HOME/.bashrc"
   copy_file "$ROOT_DIR/bash_profile" "$HOME/.bash_profile"
   copy_file "$ROOT_DIR/config/mimeapps.list" "$HOME/.config/mimeapps.list"
+  if ((DRY_RUN)); then
+    echo "[dry-run] configure detected hardware and executable permissions"
+    return 0
+  fi
   configure_hardware
   chmod +x "$HOME/.config/bspwm/bspwmrc" "$HOME/.config/polybar/launch.sh" "$HOME/.local/bin/"*
   find "$HOME/.config/bspwm/scripts" -type f -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
   validate_dotfiles
+  write_manifest
 }
 
 enable_services() {
+  if ((DRY_RUN)); then
+    echo "[dry-run] install keyd config and enable NetworkManager, bluetooth, keyd and PipeWire"
+    return 0
+  fi
   sudo install -Dm644 "$ROOT_DIR/config/keyd/default.conf" /etc/keyd/default.conf
   sudo systemctl enable --now NetworkManager.service
   sudo systemctl enable --now bluetooth.service
   sudo systemctl enable --now keyd.service
   systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service || true
+}
+
+latest_backup() {
+  find "$HOME/.dotfiles-backup" -mindepth 1 -maxdepth 1 -type d -printf '%p\n' 2>/dev/null |
+    sort | tail -n 1
+}
+
+restore_backup() {
+  local source="${1:-}" safety
+  [[ -n "$source" ]] || source="$(latest_backup)"
+  [[ -d "$source" ]] || {
+    echo "Backup not found: ${source:-none}" >&2
+    return 1
+  }
+  case "$(readlink -f "$source")" in
+    "$(readlink -f "$HOME/.dotfiles-backup")"/*) ;;
+    *)
+      echo "Refusing to restore a path outside ~/.dotfiles-backup" >&2
+      return 1
+      ;;
+  esac
+
+  safety="$HOME/.dotfiles-backup/restore-safety-$(date +%Y%m%d-%H%M%S)"
+  echo "Restoring: $source"
+  echo "Current managed files will be saved to: $safety"
+  if ((DRY_RUN)); then
+    echo "[dry-run] backup current managed paths and merge restored files into $HOME"
+    return 0
+  fi
+
+  BACKUP_DIR="$safety"
+  if [[ -f "$MANIFEST_FILE" ]]; then
+    while IFS= read -r target; do
+      [[ -n "$target" ]] && backup_path "$target"
+    done <"$MANIFEST_FILE"
+  fi
+  cp -a "$source/." "$HOME/"
+  echo "Restore completed."
+}
+
+uninstall_dotfiles() {
+  local safety
+  [[ -f "$MANIFEST_FILE" ]] || {
+    echo "Installer manifest not found: $MANIFEST_FILE" >&2
+    return 1
+  }
+  safety="$HOME/.dotfiles-backup/uninstall-$(date +%Y%m%d-%H%M%S)"
+  echo "Managed files will be moved to: $safety"
+  if ((DRY_RUN)); then
+    sed 's/^/[dry-run] remove /' "$MANIFEST_FILE"
+    return 0
+  fi
+
+  BACKUP_DIR="$safety"
+  while IFS= read -r target; do
+    [[ -n "$target" ]] && backup_path "$target"
+  done <"$MANIFEST_FILE"
+  rm -f "$MANIFEST_FILE"
+}
+
+cleanup_packages() {
+  local installed_debug=() orphans=() pkg
+
+  if pacman -Q go >/dev/null 2>&1; then
+    if ((DRY_RUN)); then
+      echo "[dry-run] sudo pacman -D --asexplicit go"
+    else
+      sudo pacman -D --asexplicit go
+    fi
+  fi
+
+  for pkg in "${DEBUG_PACKAGES[@]}"; do
+    pacman -Q "$pkg" >/dev/null 2>&1 && installed_debug+=("$pkg")
+  done
+  if ((${#installed_debug[@]})); then
+    if ((DRY_RUN)); then
+      printf '[dry-run] sudo pacman -Rns'
+      printf ' %q' "${installed_debug[@]}"
+      printf '\n'
+    else
+      sudo pacman -Rns "${installed_debug[@]}"
+    fi
+  fi
+
+  mapfile -t orphans < <(pacman -Qdtq 2>/dev/null || true)
+  if ((DRY_RUN)); then
+    local filtered=() orphan debug
+    for orphan in "${orphans[@]}"; do
+      [[ "$orphan" == go ]] && continue
+      for debug in "${DEBUG_PACKAGES[@]}"; do
+        [[ "$orphan" == "$debug" ]] && continue 2
+      done
+      filtered+=("$orphan")
+    done
+    orphans=("${filtered[@]}")
+  fi
+  if ((${#orphans[@]})); then
+    if ((DRY_RUN)); then
+      printf '[dry-run] sudo pacman -Rns'
+      printf ' %q' "${orphans[@]}"
+      printf '\n'
+    else
+      sudo pacman -Rns "${orphans[@]}"
+    fi
+  else
+    echo "No orphan packages found."
+  fi
+}
+
+doctor() {
+  local failed=0 command font xrandr_output orphan_output
+  detect
+  check_packages
+  validate_sources
+
+  echo "Runtime commands:"
+  for command in bspwm sxhkd polybar picom rofi dunst kitty fish xrandr \
+    xss-lock udiskie redshift fzf fd bat eza zoxide jq; do
+    if command -v "$command" >/dev/null 2>&1; then
+      printf '  OK      %s\n' "$command"
+    else
+      printf '  MISSING %s\n' "$command"
+      failed=1
+    fi
+  done
+
+  echo "Fonts:"
+  for font in "JetBrainsMono Nerd Font" "Noto Color Emoji"; do
+    if fc-match "$font" 2>/dev/null | grep -qi "${font%% *}"; then
+      printf '  OK      %s\n' "$font"
+    else
+      printf '  CHECK   %s\n' "$font"
+      failed=1
+    fi
+  done
+
+  echo "Display:"
+  if [[ -n "${DISPLAY:-}" ]]; then
+    if xrandr_output="$(xrandr --query 2>/dev/null)"; then
+      awk '$2 == "connected" {print "  " $1, $2, $3}' <<<"$xrandr_output"
+    else
+      echo "  DISPLAY=$DISPLAY is not accessible in this execution context."
+    fi
+  else
+    echo "  DISPLAY is not available; runtime RandR check skipped."
+  fi
+
+  echo "Display manager:"
+  for command in lightdm.service sddm.service gdm.service ly@tty1.service; do
+    if systemctl is-enabled "$command" >/dev/null 2>&1; then
+      printf '  enabled %s\n' "$command"
+    fi
+  done
+
+  echo "Orphan packages:"
+  orphan_output="$(pacman -Qdtq 2>/dev/null || true)"
+  if [[ -n "$orphan_output" ]]; then
+    printf '%s\n' "$orphan_output"
+  else
+    echo "  none"
+  fi
+
+  return "$failed"
 }
 
 print_finish() {
@@ -372,7 +673,7 @@ Installation finished.
 
 Next steps:
   1. Reboot, or log out and back in.
-  2. From a TTY run: startx
+  2. Log in through LightDM, or run startx from a TTY if LightDM was skipped.
   3. In BSPWM press Super+Enter for a terminal.
   4. Use Super+Shift+M to toggle laptop/external monitor profiles.
 
@@ -385,14 +686,20 @@ run_wizard() {
   cat <<EOF
 HELL4GAET BSPWM installer
 
-This wizard can install the desktop packages, required AUR packages,
-copy dotfiles with backups, and enable desktop services.
+This wizard can install the desktop, CLI and AUR packages, copy dotfiles with
+backups, enable services, and configure LightDM.
 EOF
 
   confirm "Continue with the BSPWM desktop installation?" yes || exit 0
 
   if confirm "Install the core desktop packages?" yes; then
     install_packages
+  fi
+  if confirm "Install lock, Polkit, automount and Thunar integration?" yes; then
+    install_integration_packages
+  fi
+  if confirm "Install command-line tools?" yes; then
+    install_cli_packages
   fi
   if confirm "Install required AUR packages (alttab, i3lock-color, Bibata)?" yes; then
     install_aur_packages
@@ -409,20 +716,31 @@ EOF
   if confirm "Install optional GoLand?" no; then
     install_goland
   fi
-  if confirm "Install the optional ly login manager?" no; then
+  if confirm "Install and enable the LightDM login manager?" yes; then
     install_login_manager
   fi
 
   print_finish
 }
 
-require_arch
+if [[ "${1:-}" == "--dry-run" ]]; then
+  DRY_RUN=1
+  shift
+  [[ $# -gt 0 ]] || {
+    echo "--dry-run requires another option" >&2
+    exit 2
+  }
+fi
+
+if [[ "${1:-}" != "--help" && "${1:-}" != "-h" ]]; then
+  require_arch
+fi
 
 case "${1:-}" in
   "")
     run_wizard
     ;;
-  --help|-h)
+  --help | -h)
     show_help
     ;;
   --check)
@@ -432,6 +750,12 @@ case "${1:-}" in
     ;;
   --packages)
     install_packages
+    ;;
+  --integration)
+    install_integration_packages
+    ;;
+  --cli)
+    install_cli_packages
     ;;
   --dev)
     install_dev_packages
@@ -466,14 +790,32 @@ case "${1:-}" in
   --dotfiles)
     install_dotfiles
     ;;
+  --update)
+    install_dotfiles
+    ;;
+  --restore)
+    restore_backup "${2:-}"
+    ;;
+  --uninstall)
+    uninstall_dotfiles
+    ;;
+  --doctor)
+    doctor
+    ;;
+  --cleanup)
+    cleanup_packages
+    ;;
   --services)
     enable_services
     ;;
   --all)
     install_packages
+    install_integration_packages
+    install_cli_packages
     install_aur_packages
     install_dotfiles
     enable_services
+    install_login_manager
     print_finish
     ;;
   *)

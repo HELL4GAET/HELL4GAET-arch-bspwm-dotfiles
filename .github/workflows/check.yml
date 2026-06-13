@@ -1,0 +1,18 @@
+name: Check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  shell:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install checks
+        run: pacman -Syu --noconfirm make shellcheck shfmt fish keyd
+      - name: Lint
+        run: make lint
+      - name: Smoke tests
+        run: make check

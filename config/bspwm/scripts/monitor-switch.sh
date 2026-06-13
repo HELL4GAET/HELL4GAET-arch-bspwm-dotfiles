@@ -212,6 +212,11 @@ reload_dunst() {
     dunstctl reload 2>/dev/null || true
 }
 
+apply_warm_screen() {
+    command -v warm-screen >/dev/null 2>&1 || return 0
+    warm-screen apply >/dev/null 2>&1 || true
+}
+
 apply_bspwm_padding() {
     local monitor="$1"
     command -v bspc >/dev/null 2>&1 || return 0
@@ -248,7 +253,7 @@ main() {
     fi
 
     if [[ "$target" == external ]]; then
-        xrandr --output "$EXTERNAL_OUTPUT" --primary --mode "$EXTERNAL_MODE" --rate "$EXTERNAL_RATE" || \
+        xrandr --output "$EXTERNAL_OUTPUT" --primary --mode "$EXTERNAL_MODE" --rate "$EXTERNAL_RATE" ||
             xrandr --output "$EXTERNAL_OUTPUT" --primary --auto
         turn_off_other_outputs "$EXTERNAL_OUTPUT"
         printf 'external\n' >"$PROFILE_FILE"
@@ -267,6 +272,7 @@ main() {
     command -v wallpaper >/dev/null 2>&1 && wallpaper 9>&- || true
     restart_polybar
     apply_bspwm_padding "$active_monitor"
+    apply_warm_screen
     reload_dunst
 }
 

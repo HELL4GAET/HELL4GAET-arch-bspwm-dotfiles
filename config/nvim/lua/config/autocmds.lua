@@ -1,0 +1,2 @@
+-- Autocmds are automatically loaded before the VeryLazy event.
+-- Add project-independent custom autocommands here.

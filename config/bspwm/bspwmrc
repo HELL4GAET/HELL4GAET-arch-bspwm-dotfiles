@@ -6,11 +6,12 @@ export XCURSOR_THEME="Bibata-Modern-Ice"
 start_once() {
     command -v "$1" >/dev/null 2>&1 || return 0
     if ! pgrep -x "$1" >/dev/null; then
-        "$@" &
+        setsid -f "$@" >/dev/null 2>&1
     fi
 }
 
-pgrep -x sxhkd >/dev/null || sxhkd -c "$HOME/.config/sxhkd/sxhkdrc" >"$HOME/.cache/sxhkd.log" 2>&1 &
+pgrep -x sxhkd >/dev/null ||
+    setsid -f sxhkd -c "$HOME/.config/sxhkd/sxhkdrc" >"$HOME/.cache/sxhkd.log" 2>&1
 
 xrdb -merge "$HOME/.Xresources" 2>/dev/null || true
 xsetroot -cursor_name left_ptr
@@ -49,10 +50,10 @@ mkdir -p "$HOME/.cache"
 monitor_switch="$HOME/.config/bspwm/scripts/monitor-switch.sh"
 if [ -x "$monitor_switch" ]; then
     if ! "$monitor_switch" >"$HOME/.cache/monitor-switch.log" 2>&1; then
-        "$HOME/.config/polybar/launch.sh" &
+        setsid -f "$HOME/.config/polybar/launch.sh"
     fi
 else
-    "$HOME/.config/polybar/launch.sh" &
+    setsid -f "$HOME/.config/polybar/launch.sh"
 fi
 
 bspc rule -a feh state=floating
@@ -61,9 +62,28 @@ bspc rule -a Blueman-manager state=floating center=true
 bspc rule -a Lxappearance state=floating center=true
 wallpaper
 
-pgrep -x dunst >/dev/null || dunst &
-pgrep -x picom >/dev/null || picom --config "$HOME/.config/picom/picom.conf" &
+pgrep -x dunst >/dev/null || setsid -f dunst
+pgrep -x picom >/dev/null ||
+    setsid -f picom --config "$HOME/.config/picom/picom.conf"
 start_once alttab -w 1 -d 1 -sc 0
 start_once nm-applet
 start_once blueman-applet
 start_once flameshot
+start_once udiskie --automount --notify
+
+if command -v xss-lock >/dev/null 2>&1 && ! pgrep -x xss-lock >/dev/null; then
+    xset s 0 0
+    xset dpms 0 0 900
+    setsid -f xss-lock --transfer-sleep-lock -- lock
+fi
+
+for agent in \
+    /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 \
+    /usr/lib/polkit-1/polkit-gnome-authentication-agent-1; do
+    if [ -x "$agent" ]; then
+        pgrep -f "^${agent}$" >/dev/null || setsid -f "$agent"
+        break
+    fi
+done
+
+warm-screen apply >/dev/null 2>&1 || true

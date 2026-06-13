@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/hell4gaet-desktop"
+state_file="$state_dir/warm-screen"
+warm_temperature="${WARM_SCREEN_TEMPERATURE:-4200}"
+normal_temperature="${NORMAL_SCREEN_TEMPERATURE:-6500}"
+
+apply_temperature() {
+  local temperature="$1"
+
+  pkill -x redshift 2>/dev/null || true
+  if [[ "$temperature" == "$normal_temperature" ]]; then
+    redshift -x >/dev/null 2>&1 || true
+  else
+    redshift -P -O "$temperature" >/dev/null 2>&1
+  fi
+}
+
+mode="$(cat "$state_file" 2>/dev/null || printf 'normal')"
+
+case "${1:-toggle}" in
+  toggle)
+    mkdir -p "$state_dir"
+    if [[ "$mode" == warm ]]; then
+      printf 'normal\n' >"$state_file"
+      apply_temperature "$normal_temperature"
+      notify-send "Display" "Normal color temperature" -t 1500 >/dev/null 2>&1 || true
+    else
+      printf 'warm\n' >"$state_file"
+      apply_temperature "$warm_temperature"
+      notify-send "Display" "Warm color temperature: ${warm_temperature}K" -t 1500 >/dev/null 2>&1 || true
+    fi
+    ;;
+  apply)
+    if [[ "$mode" == warm ]]; then
+      apply_temperature "$warm_temperature"
+    else
+      apply_temperature "$normal_temperature"
+    fi
+    ;;
+  status)
+    printf '%s\n' "$mode"
+    ;;
+  *)
+    echo "usage: warm-screen [toggle|apply|status]" >&2
+    exit 2
+    ;;
+esac
