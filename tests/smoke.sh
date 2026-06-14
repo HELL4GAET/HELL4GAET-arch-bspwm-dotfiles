@@ -11,7 +11,9 @@ bash -n \
   "$root/config/polybar/launch.sh" \
   "$root"/local/bin/*
 
-systemd-analyze --user verify "$root/config/systemd/user/bspwm-session.target"
+if systemctl --user show-environment >/dev/null 2>&1; then
+  systemd-analyze --user verify "$root/config/systemd/user/bspwm-session.target"
+fi
 
 if command -v fish >/dev/null 2>&1; then
   fish -n "$root/config/fish/config.fish"
