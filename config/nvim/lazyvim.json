@@ -1,5 +1,10 @@
 {
-  "extras": [],
+  "extras": [
+    "lazyvim.plugins.extras.dap.core",
+    "lazyvim.plugins.extras.lang.git",
+    "lazyvim.plugins.extras.lang.go",
+    "lazyvim.plugins.extras.test.core"
+  ],
   "install_version": 8,
   "news": {
     "NEWS.md": "11866"

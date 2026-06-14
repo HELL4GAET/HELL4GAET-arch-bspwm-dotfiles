@@ -76,33 +76,26 @@
 | `super + shift + 1-5` | Переместить окно на desktop 1-5 и перейти туда |
 | `super + ctrl + h/j/k/l` | Resize окна |
 
-## LazyVim: что включить для Go
+## LazyVim: профиль Go
 
-Сейчас локальный `~/.config/nvim/lazyvim.json` показывает пустой список extras.
-Для Go-разработки включи extras внутри Neovim:
+Репозиторий уже включает:
 
-```vim
-:LazyExtras
-```
+- `lang.go` — Treesitter, `gopls`, `goimports`, `gofumpt` и
+  `golangci-lint`;
+- `dap.core` — отладку через Delve;
+- `test.core` — запуск тестов через Neotest;
+- `lang.git` — поддержку Git-конфигов и commit messages.
 
-Минимальный набор:
-
-- `lang.go` — Go language support: Treesitter, `gopls`, `goimports`, `gofumpt`,
-  `gomodifytags`, `impl`, `golangci-lint`, `delve`.
-- `dap.core` — отладка через DAP.
-- `test.core` — запуск тестов через neotest.
-- Опционально `editor.aerial` — удобный outline/symbols view.
-- Опционально `util.gitui` — git UI внутри Neovim, если не хватает LazyGit.
-
-Потом:
+При первом запуске LazyVim синхронизирует плагины, а Mason установит
+`gopls`, `goimports`, `gofumpt`, `golangci-lint` и `delve`. Проверка:
 
 ```vim
-:Lazy sync
+:Lazy
 :Mason
+:LspInfo
 ```
 
-В `:Mason` проверь, что стоят `gopls`, `goimports`, `gofumpt`,
-`gomodifytags`, `impl`, `golangci-lint`, `delve`.
+Для сборки Treesitter parsers нужен C compiler из Arch-пакета `base-devel`.
 
 Официальные страницы:
 
@@ -190,8 +183,9 @@ which-key: группы `f` = files, `s` = search.
 | Бинд | Действие |
 | --- | --- |
 | `<leader>tr` | Run nearest test |
-| `<leader>tR` | Run test file |
-| `<leader>ta` | Run all tests |
+| `<leader>tt` | Run test file |
+| `<leader>tT` | Run all test files |
+| `<leader>tl` | Run last test |
 | `<leader>ts` | Toggle test summary |
 | `<leader>to` | Show test output |
 | `<leader>tO` | Toggle test output panel |
@@ -231,16 +225,16 @@ GoLand mental model:
 
 | Бинд | Действие |
 | --- | --- |
-| `<leader>gg` | LazyGit/Git UI root dir, если extra установлен |
-| `<leader>gG` | LazyGit/Git UI cwd, если extra установлен |
+| `<leader>gg` | LazyGit для корня проекта |
+| `<leader>gG` | LazyGit для текущего каталога |
 | `]h` / `[h` | Next/prev git hunk |
 | `<leader>ghp` | Preview hunk |
 | `<leader>ghs` | Stage hunk |
 | `<leader>ghr` | Reset hunk |
 | `<leader>gb` | Git blame line |
 
-Если GoLand VCS panel привычнее, поставь `lazygit` и включи LazyVim git UI
-extra. Тогда большая часть git workflow уходит в `<leader>gg`.
+`lazygit` устанавливается основным CLI-набором installer, поэтому большая часть
+git workflow доступна через `<leader>gg`.
 
 ## LazyVim: терминал и задачи
 

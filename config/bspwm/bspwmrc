@@ -3,6 +3,10 @@
 export PATH="$HOME/.local/bin:$HOME/go/bin:$PATH"
 export XCURSOR_THEME="Bibata-Modern-Ice"
 
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl --user start bspwm-session.target >/dev/null 2>&1 || true
+fi
+
 start_once() {
     command -v "$1" >/dev/null 2>&1 || return 0
     if ! pgrep -x "$1" >/dev/null; then

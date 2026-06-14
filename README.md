@@ -27,7 +27,8 @@ cd HELL4GAET-arch-bspwm-dotfiles
 6. включить системные сервисы;
 7. включить LightDM.
 
-Developer tools и GoLand устанавливаются только по отдельному подтверждению.
+Дополнительные developer tools и GoLand устанавливаются только по отдельному
+подтверждению. Go входит в основной профиль.
 LightDM с GTK-greeter входит в обычный сценарий установки.
 
 После завершения перезагрузи систему:
@@ -125,7 +126,7 @@ AUR-пакеты, dotfiles, сервисы и LightDM. Пароль `sudo` вс�
 
 - BSPWM, SXHKD, Polybar, Picom, Rofi, Dunst и Alttab;
 - Kitty с Fish, кастомным prompt и Fastfetch;
-- Neovim с базовой конфигурацией LazyVim и lockfile плагинов;
+- Neovim с LazyVim, готовым Go LSP, форматированием, lint, тестами, DAP и Git;
 - PipeWire, WirePlumber, Pavucontrol и управление громкостью;
 - NetworkManager, Blueman и Bluetooth;
 - Thunar, Firefox, Code OSS, Telegram Desktop, MPV и Flameshot;
@@ -143,7 +144,8 @@ AUR-пакеты, dotfiles, сервисы и LightDM. Пароль `sudo` вс�
 
 Опционально мастер может установить:
 
-- developer tools: Go, Rust, Node.js, Python, JDK, Docker, GitHub CLI;
+- дополнительные developer tools: Rust, Node.js, Python, JDK, Docker,
+  GitHub CLI;
 - GoLand;
 
 Профили браузеров, SSH-ключи, VPN, Telegram session, JetBrains license,
@@ -186,6 +188,9 @@ git config --global user.email "you@example.com"
 в `~/.local/state/hell4gaet-dotfiles/manifest`.
 
 Установщик нужно запускать обычным пользователем. Запуск от `root` запрещён.
+
+`base-devel` входит в основной набор и предоставляет C compiler, необходимый
+для сборки Treesitter parsers в Neovim.
 
 После копирования автоматически определяются:
 
@@ -273,8 +278,12 @@ pgrep -a sxhkd
 получают красную нижнюю линию без фонового квадрата.
 
 Справа отображаются батарея, день недели, дата и время, например
-`  84%  Sun 14 Jun  10:35`. Звук и яркость управляются аппаратными клавишами,
-поэтому их постоянные индикаторы вместе с раскладкой скрыты из панели.
+`us    84%  Sun 14 Jun  10:35`. Индикатор раскладки показывает `us` или `ru`
+и обновляется при переключении через `Alt+Shift`. Звук и яркость управляются
+аппаратными клавишами, поэтому их постоянные индикаторы скрыты из панели.
+
+Фон Polybar полностью непрозрачный, внешняя граница отключена. Панель сохраняет
+скругление и отдельные размеры для ноутбука и внешнего 4K-монитора.
 
 Общий system tray отключён, поэтому иконки запущенных приложений в Polybar не
 попадают. Синий значок Arch Linux слева открывает powermenu. Управление Wi-Fi
@@ -317,8 +326,9 @@ GoLand 2026.1 настроен на Fish во встроенном термин�
 ~/.config/JetBrains/GoLand2026.1/options/terminal-local.xml
 ```
 
-Также устанавливаются тёмная тема интерфейса GoLand, тёмная цветовая схема
-редактора, compact UI и увеличенные editor/terminal fonts.
+Также устанавливаются светлая тема интерфейса GoLand, светлая цветовая схема
+редактора, compact UI и увеличенные editor/terminal fonts. Code OSS использует
+тему `Light Modern`.
 
 ## CLI-инструменты
 
@@ -369,6 +379,34 @@ nvim
 
 LazyVim автоматически установит плагины из `lazy-lock.json`. Карта основных
 биндов и настройки Go находятся в [docs/keybindings.md](docs/keybindings.md).
+
+Включены extras:
+
+- `lang.go` — `gopls`, Go Treesitter, `goimports`, `gofumpt` и
+  `golangci-lint`;
+- `dap.core` — отладка через Delve;
+- `test.core` — Go tests через Neotest;
+- `lang.git` — поддержка Git-конфигов и commit messages.
+
+Mason устанавливает `gopls`, `goimports`, `gofumpt`, `golangci-lint` и `delve`
+при первом запуске. Для этого нужны интернет, `unzip` и C compiler из
+`base-devel`.
+Проверить состояние можно командами `:Lazy`, `:Mason` и `:LspInfo`.
+
+LazyGit уже входит в CLI-набор и открывается в Neovim через `<leader>gg`.
+
+## Пользовательская systemd-сессия
+
+`~/.xinitrc` перед запуском BSPWM передаёт X11 environment в user manager.
+BSPWM затем запускает `bspwm-session.target`, связанный с
+`graphical-session.target`. Это даёт пользовательским systemd-сервисам
+корректный жизненный цикл графической сессии.
+
+Unit устанавливается в:
+
+```text
+~/.config/systemd/user/bspwm-session.target
+```
 
 ## Клавиатура и раскладки
 

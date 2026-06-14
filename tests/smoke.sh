@@ -11,6 +11,8 @@ bash -n \
   "$root/config/polybar/launch.sh" \
   "$root"/local/bin/*
 
+systemd-analyze --user verify "$root/config/systemd/user/bspwm-session.target"
+
 if command -v fish >/dev/null 2>&1; then
   fish -n "$root/config/fish/config.fish"
 fi
@@ -20,6 +22,7 @@ if command -v keyd >/dev/null 2>&1; then
 fi
 
 help_output="$("$root/install.sh" --help)"
+packages_output="$("$root/install.sh" --dry-run --packages)"
 integration_output="$("$root/install.sh" --dry-run --integration)"
 cli_output="$("$root/install.sh" --dry-run --cli)"
 dotfiles_output="$("$root/install.sh" --dry-run --dotfiles)"
@@ -27,6 +30,8 @@ cleanup_output="$("$root/install.sh" --dry-run --cleanup)"
 login_output="$("$root/install.sh" --dry-run --login-manager)"
 
 grep -q -- '--doctor' <<<"$help_output"
+grep -q ' go' <<<"$packages_output"
+grep -q ' unzip' <<<"$packages_output"
 grep -q 'pacman -S' <<<"$integration_output"
 grep -q 'pacman -S' <<<"$cli_output"
 grep -q 'copy directory' <<<"$dotfiles_output"

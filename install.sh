@@ -18,7 +18,7 @@ CORE_PACKAGES=(
   flameshot xclip feh mpv telegram-desktop lxappearance
   xdg-utils
   papirus-icon-theme ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji ttf-dejavu
-  git base-devel ripgrep
+  git base-devel ripgrep go unzip
 )
 
 DESKTOP_INTEGRATION_PACKAGES=(
@@ -52,7 +52,7 @@ AUR_GOLAND_PACKAGES=(goland goland-jre)
 DEV_PACKAGES=(
   nodejs npm pnpm
   python python-pip python-pipx
-  go rustup jdk-openjdk
+  rustup jdk-openjdk
   docker docker-compose
   openssh github-cli lazygit shellcheck shfmt
 )
@@ -366,6 +366,7 @@ configure_hardware() {
 validate_dotfiles() {
   local required=(
     "$HOME/.config/bspwm/scripts/monitor-switch.sh"
+    "$HOME/.config/systemd/user/bspwm-session.target"
     "$HOME/.config/polybar/config.ini"
     "$HOME/.config/polybar/modules.ini"
     "$HOME/.config/dunst/dunstrc"
@@ -402,7 +403,6 @@ validate_sources() {
   if command -v keyd >/dev/null 2>&1; then
     keyd check "$ROOT_DIR/config/keyd/default.conf"
   fi
-
   echo "Repository configuration syntax: OK"
 }
 
@@ -422,6 +422,7 @@ $HOME/.config/btop
 $HOME/.config/flameshot
 $HOME/.config/keyd
 $HOME/.config/nvim
+$HOME/.config/systemd/user
 $HOME/.config/Code - OSS
 $HOME/.config/JetBrains
 $HOME/.config/gtk-3.0
@@ -463,6 +464,7 @@ install_dotfiles() {
   copy_dir "$ROOT_DIR/config/flameshot" "$HOME/.config/flameshot"
   copy_dir "$ROOT_DIR/config/keyd" "$HOME/.config/keyd"
   copy_dir "$ROOT_DIR/config/nvim" "$HOME/.config/nvim"
+  copy_dir "$ROOT_DIR/config/systemd/user" "$HOME/.config/systemd/user"
   copy_dir "$ROOT_DIR/config/Code - OSS" "$HOME/.config/Code - OSS"
   copy_dir "$ROOT_DIR/config/JetBrains" "$HOME/.config/JetBrains"
   copy_dir "$ROOT_DIR/config/gtk-3.0" "$HOME/.config/gtk-3.0"
@@ -481,10 +483,11 @@ install_dotfiles() {
   copy_file "$ROOT_DIR/bash_profile" "$HOME/.bash_profile"
   copy_file "$ROOT_DIR/config/mimeapps.list" "$HOME/.config/mimeapps.list"
   if ((DRY_RUN)); then
-    echo "[dry-run] configure detected hardware and executable permissions"
+    echo "[dry-run] configure detected hardware, user units and executable permissions"
     return 0
   fi
   configure_hardware
+  systemctl --user daemon-reload >/dev/null 2>&1 || true
   chmod +x "$HOME/.config/bspwm/bspwmrc" "$HOME/.config/polybar/launch.sh" "$HOME/.local/bin/"*
   find "$HOME/.config/bspwm/scripts" -type f -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
   validate_dotfiles
