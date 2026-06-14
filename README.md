@@ -278,13 +278,19 @@ pgrep -a sxhkd
 - батарея;
 - яркость;
 - звук;
-- Bluetooth;
-- Wi-Fi;
-- время и дата `HH:MM dd.mm`.
+- день недели, дата и время, например `Sun 14 Jun  10:35`.
 
 Общий system tray отключён, поэтому иконки запущенных приложений в Polybar не
-попадают. Синий значок Arch Linux слева открывает powermenu. Значок Bluetooth
-открывает `blueman-manager`, Wi-Fi открывает `nm-connection-editor`.
+попадают. Синий значок Arch Linux слева открывает powermenu. Управление Wi-Fi
+и Bluetooth вынесено в отдельные терминальные команды:
+
+```bash
+wifi
+bluetooth
+```
+
+`wifi` открывает редактор сетевых подключений NetworkManager,
+`bluetooth` — графический менеджер устройств Blueman.
 
 ## Picom
 

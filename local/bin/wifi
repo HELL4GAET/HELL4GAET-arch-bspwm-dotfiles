@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+setsid -f nm-connection-editor >/dev/null 2>&1
