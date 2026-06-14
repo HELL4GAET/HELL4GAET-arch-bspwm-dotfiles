@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     container: archlinux:latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install checks
         run: pacman -Syu --noconfirm make shellcheck shfmt fish keyd
       - name: Lint
