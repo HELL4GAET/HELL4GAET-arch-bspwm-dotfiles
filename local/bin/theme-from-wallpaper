@@ -1,6 +1,6 @@
 #!/bin/sh
 
-wallpaper="${1:-$HOME/.config/bspwm/wallpaper.png}"
+wallpaper="${1:-$HOME/.config/bspwm/wallpaper}"
 wallpaper="$(readlink -f "$wallpaper")"
 
 if ! command -v matugen >/dev/null 2>&1; then

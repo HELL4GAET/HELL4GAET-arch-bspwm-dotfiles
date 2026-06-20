@@ -12,13 +12,13 @@
   progress_bar_min_width = 150
   progress_bar_max_width = 320
   indicate_hidden = yes
-  transparency = 18
+  transparency = 0
   separator_height = 1
   padding = 14
   horizontal_padding = 16
   text_icon_padding = 12
   frame_width = 1
-  frame_color = "#b3c5ff"
+  frame_color = "#161320"
   separator_color = frame
   sort = yes
   font = JetBrainsMono Nerd Font 12
@@ -42,22 +42,22 @@
   mouse_right_click = close_all
 
 [urgency_low]
-  background = "#10131c"
-  foreground = "#a9b1d6"
-  frame_color = "#2e3040"
-  highlight = "#8e909c"
+  background = "#1e1e2e"
+  foreground = "#d9e0ee"
+  frame_color = "#989cfa"
+  highlight = "#989cfa"
   timeout = 4
 
 [urgency_normal]
-  background = "#10131c"
-  foreground = "#e0e2ef"
-  frame_color = "#b3c5ff"
-  highlight = "#b3c5ff"
+  background = "#1e1e2e"
+  foreground = "#d9e0ee"
+  frame_color = "#989cfa"
+  highlight = "#989cfa"
   timeout = 6
 
 [urgency_critical]
-  background = "#10131c"
-  foreground = "#ffffff"
-  frame_color = "#ffb4ab"
-  highlight = "#ffb4ab"
+  background = "#1e1e2e"
+  foreground = "#d9e0ee"
+  frame_color = "#989cfa"
+  highlight = "#989cfa"
   timeout = 0

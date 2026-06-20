@@ -2,18 +2,18 @@
 set -euo pipefail
 
 wallpaper_dir="$HOME/.config/bspwm/wallpapers"
-fallback="$HOME/.config/bspwm/wallpaper.png"
+current_wallpaper="$HOME/.config/bspwm/wallpaper"
 
 if [[ "${1:-}" == "--random" && -d "$wallpaper_dir" ]]; then
   mapfile -t images < <(find "$wallpaper_dir" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.png' \) | sort)
   if ((${#images[@]} > 0)); then
     selected="${images[RANDOM % ${#images[@]}]}"
-    ln -sf "$selected" "$fallback"
+    ln -sf "$selected" "$current_wallpaper"
   fi
 fi
 
-if [[ -e "$fallback" ]]; then
-  feh --bg-fill "$fallback"
+if [[ -e "$current_wallpaper" ]]; then
+  feh --bg-fill "$current_wallpaper"
 else
   xsetroot -solid "#1e222a"
 fi

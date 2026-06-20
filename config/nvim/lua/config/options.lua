@@ -1,2 +1,4 @@
 -- Options are automatically loaded before lazy.nvim startup.
 -- Add project-independent editor options here.
+
+vim.opt.spelllang = { "en", "ru" }

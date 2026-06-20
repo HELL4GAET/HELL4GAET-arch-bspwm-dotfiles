@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-wallpaper="$(readlink -f "$HOME/.config/bspwm/wallpaper.png")"
+wallpaper="$(readlink -f "$HOME/.config/bspwm/wallpaper")"
 cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/lockscreen"
 blurred="$cache_dir/blurred.png"
 
@@ -14,7 +14,7 @@ if [[ -f "$wallpaper" && ( ! -f "$blurred" || "$wallpaper" -nt "$blurred" ) ]]; 
     -frames:v 1 "$blurred"
 fi
 
-image_args=(-c 10131cff)
+image_args=(-c 1e1e2eff)
 if [[ -f "$blurred" ]]; then
   image_args=(-i "$blurred" --fill)
 fi
@@ -49,19 +49,19 @@ i3lock \
   --greeter-size=18 \
   --verif-size=16 \
   --wrong-size=16 \
-  --time-color=e0e2efff \
-  --date-color=a9b1d6ff \
-  --greeter-color=b3c5ffff \
-  --verif-color=b3c5ffff \
-  --wrong-color=ffb4abff \
-  --inside-color=10131ccc \
-  --ring-color=2e3040ff \
-  --insidever-color=10131ccc \
-  --ringver-color=b3c5ffff \
-  --insidewrong-color=10131ccc \
-  --ringwrong-color=ffb4abff \
+  --time-color=cdd6f4ff \
+  --date-color=bac2deff \
+  --greeter-color=89b4faff \
+  --verif-color=89b4faff \
+  --wrong-color=f38ba8ff \
+  --inside-color=1e1e2ecc \
+  --ring-color=45475aff \
+  --insidever-color=1e1e2ecc \
+  --ringver-color=89b4faff \
+  --insidewrong-color=1e1e2ecc \
+  --ringwrong-color=f38ba8ff \
   --line-color=00000000 \
   --separator-color=00000000 \
-  --keyhl-color=d1bdf6ff \
-  --bshl-color=ffb4abff \
+  --keyhl-color=f5c2e7ff \
+  --bshl-color=f38ba8ff \
   --no-modkey-text

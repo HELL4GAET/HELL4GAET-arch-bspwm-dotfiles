@@ -125,8 +125,8 @@ apply_scale_profile() {
             rofi_font="$EXTERNAL_ROFI_FONT"
             cursor_size="$EXTERNAL_CURSOR_SIZE"
             qt_scale="$EXTERNAL_SCALE"
-            TOP_PADDING=72
-            BOTTOM_PADDING=14
+            TOP_PADDING=58
+            BOTTOM_PADDING=0
             ;;
         laptop)
             xft_dpi="$LAPTOP_XFT_DPI"
@@ -134,8 +134,8 @@ apply_scale_profile() {
             rofi_font="$LAPTOP_ROFI_FONT"
             cursor_size="$LAPTOP_CURSOR_SIZE"
             qt_scale=1
-            TOP_PADDING=50
-            BOTTOM_PADDING=6
+            TOP_PADDING=44
+            BOTTOM_PADDING=0
             ;;
         *)
             printf 'monitor-switch: unknown scale profile: %s\n' "$profile" >&2

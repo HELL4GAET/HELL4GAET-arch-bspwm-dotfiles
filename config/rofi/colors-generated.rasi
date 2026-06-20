@@ -1,6 +1,6 @@
 * {
-    generated-background: #10131ce6;
-    generated-surface: #1d1f29f2;
-    generated-foreground: #e0e2ef;
-    generated-primary: #b3c5ff;
+    generated-background: #1e1d2f;
+    generated-surface: #1e1d2f;
+    generated-foreground: #d9e0ee;
+    generated-primary: #7aa2f7;
 }

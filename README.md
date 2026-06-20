@@ -4,6 +4,10 @@
 PipeWire, NetworkManager и Bluetooth. Конфигурация адаптирована для ноутбука и
 внешнего 4K-монитора.
 
+## Демонстрация
+
+![Третий workspace BSPWM](demonstration/workspace-3.png)
+
 ## Быстрая установка
 
 На новой установленной Arch Linux должен работать интернет, а пользователь
@@ -24,12 +28,10 @@ cd HELL4GAET-arch-bspwm-dotfiles
 3. установить CLI-инструменты;
 4. установить обязательные AUR-пакеты;
 5. установить dotfiles;
-6. включить системные сервисы;
-7. включить LightDM.
+6. включить системные сервисы.
 
 Дополнительные developer tools и GoLand устанавливаются только по отдельному
 подтверждению. Go входит в основной профиль.
-LightDM с GTK-greeter входит в обычный сценарий установки.
 
 После завершения перезагрузи систему:
 
@@ -37,12 +39,8 @@ LightDM с GTK-greeter входит в обычный сценарий уста�
 reboot
 ```
 
-Появится графический вход LightDM. Если этап login manager был пропущен, войди
-в TTY и запусти:
-
-```bash
-startx
-```
+Войди под своим пользователем на `tty1`. `~/.bash_profile` автоматически
+запустит `startx` и BSPWM. На других TTY графическая сессия не запускается.
 
 Терминал открывается через `Super+Enter`, меню приложений через `Super+D`.
 
@@ -88,7 +86,7 @@ startx
 ```
 
 Он устанавливает основные пакеты, desktop integration, CLI tools, обязательные
-AUR-пакеты, dotfiles, сервисы и LightDM. Пароль `sudo` всё равно потребуется.
+AUR-пакеты, dotfiles и сервисы. Пароль `sudo` всё равно потребуется.
 
 Доступные отдельные этапы:
 
@@ -114,7 +112,6 @@ AUR-пакеты, dotfiles, сервисы и LightDM. Пароль `sudo` вс�
 ./install.sh --jdk
 ./install.sh --browser-firefox
 ./install.sh --browser-chromium
-./install.sh --login-manager
 ./install.sh --help
 ```
 
@@ -125,13 +122,13 @@ AUR-пакеты, dotfiles, сервисы и LightDM. Пароль `sudo` вс�
 Основной рабочий стол:
 
 - BSPWM, SXHKD, Polybar, Picom, Rofi, Dunst и Alttab;
-- Kitty с Fish, кастомным prompt и Fastfetch;
+- Kitty с Fish и кастомным prompt; Fastfetch доступен для ручного запуска;
 - Neovim с LazyVim, готовым Go LSP, форматированием, lint, тестами, DAP и Git;
 - PipeWire, WirePlumber, Pavucontrol и управление громкостью;
 - NetworkManager, Blueman и Bluetooth;
 - Thunar, Firefox, Code OSS, Telegram Desktop, MPV и Flameshot;
 - JetBrainsMono Nerd Font, Noto Fonts и Papirus;
-- Matugen-based цвета для Kitty и Rofi;
+- единая непрозрачная палитра Catppuccin для Kitty и Rofi;
 - белый курсор `Bibata-Modern-Ice`;
 - lockscreen через `i3lock-color`;
 - GTK-тема `Dracula-pink-accent`.
@@ -204,17 +201,9 @@ git config --global user.email "you@example.com"
 
 ## Графический вход
 
-Обычная установка использует LightDM с GTK-greeter. Отдельно установить или
-повторно включить его можно командой:
-
-```bash
-./install.sh --login-manager
-```
-
-Команда устанавливает `lightdm` и `lightdm-gtk-greeter`, затем включает
-`lightdm.service`. Если SDDM, GDM или `ly` уже включён, installer остановится,
-чтобы не создать конфликт display managers. Autologin не настраивается.
-Без display manager по-прежнему можно использовать `startx`.
+Display manager не используется. После обычного входа на `tty1`
+`~/.bash_profile` запускает `startx`; `.xinitrc` запускает BSPWM. Для ручного
+запуска из другого TTY используй команду `startx`.
 
 ## Мониторы и HiDPI
 
@@ -236,7 +225,7 @@ git config --global user.email "you@example.com"
 - Qt scale `1`;
 - курсор `24`;
 - Polybar `1886x34+16+10`;
-- отступы BSPWM `top=50`, `bottom=6`.
+- отступы BSPWM `top=44`, `bottom=0`.
 
 Профиль внешнего монитора:
 
@@ -245,7 +234,7 @@ git config --global user.email "you@example.com"
 - Qt scale `1.75`;
 - курсор `32`;
 - Polybar `3806x46+16+12`;
-- отступы BSPWM `top=72`, `bottom=14`.
+- отступы BSPWM `top=58`, `bottom=0`.
 
 При переключении рабочие столы `1-5` переносятся на активный монитор,
 выключаются все неактивные RandR-выходы, включая зависшие `disconnected`
@@ -299,26 +288,30 @@ bluetooth
 
 ## Picom
 
-Picom настроен на ML4W-inspired визуальный слой:
+Picom настроен на полностью непрозрачный визуальный слой:
 
 - backend `glx`;
 - VSync включён;
 - мягкие тени включены;
-- gaussian blur включён для прозрачных окон;
+- blur отключён;
 - fading включён;
-- активные окна имеют opacity `0.90`, неактивные `0.78`;
+- активные и неактивные окна имеют opacity `1.0`, затемнение отключено;
 - скругления `14 px`.
+
+Рамки окон задаёт BSPWM: `border_width=5`. Активная рамка фиолетовая,
+сфокусированная — синяя; Picom отображает рамки полностью непрозрачными через
+`frame-opacity=1.0`.
 
 ## Kitty, Fish и GoLand
 
 `Super+Enter` открывает Kitty. Alacritty не используется и не устанавливается.
-Kitty запускает Fish, использует Tokyo Night/Matugen цвета, прозрачность `0.62`,
-скрытые декорации, powerline tabs и небольшой cursor trail.
-В Kitty `Ctrl+V` явно вставляет содержимое системного clipboard.
+Kitty запускает Fish, использует непрозрачную палитру Catppuccin, скрытые
+декорации, powerline tabs и небольшой cursor trail. В Kitty `Ctrl+V` вставляет
+содержимое системного clipboard, а правый клик выделяет вывод shell-команды.
 
-Fish prompt показывает текущий путь, git branch, затем с новой строки значок
-Arch Linux и текущего пользователя. При старте интерактивного Kitty один раз
-показывается Fastfetch.
+Fish prompt показывает текущий путь, git branch, значок Arch Linux и текущего
+пользователя. Fastfetch установлен, но автоматически при старте Kitty не
+запускается; при необходимости выполни `fastfetch` вручную.
 
 GoLand 2026.1 настроен на Fish во встроенном терминале через:
 
@@ -379,6 +372,8 @@ nvim
 
 LazyVim автоматически установит плагины из `lazy-lock.json`. Карта основных
 биндов и настройки Go находятся в [docs/keybindings.md](docs/keybindings.md).
+Проверка орфографии подготовлена для английского и русского словарей через
+`spelllang=en,ru`; включить её для текущего окна можно командой `:set spell`.
 
 Включены extras:
 
@@ -420,10 +415,13 @@ Caps Lock остаётся обычным Caps Lock и не переназнач
 
 ## Rofi и powermenu
 
-Rofi использует прозрачную Tokyo Night/Matugen тему. `Super+D` открывает меню
+Rofi использует непрозрачную тему Catppuccin. `Super+D` открывает меню
 приложений, `Super+Shift+D` — run prompt, `Super+Shift+Enter` — переключатель
 окон. Powermenu открывается через `Super+Shift+X` или левый значок Arch Linux в
 Polybar.
+
+`theme-from-wallpaper` повторно применяет закреплённые шаблоны Kitty и Rofi
+через Matugen. Палитра намеренно фиксирована и не меняется от выбранных обоев.
 
 ## Обои
 
@@ -517,11 +515,3 @@ ls /sys/class/power_supply
 ```
 
 и соответствующие секции в `~/.config/polybar/modules.ini`.
-
-## Происхождение
-
-Внешний вид частично основан на идеях
-[`Zproger/bspwm-dotfiles`](https://github.com/Zproger/bspwm-dotfiles), но
-builder и широкая политика установки оригинала не используются. Скрипты
-мониторов, установки, звука, яркости, lockscreen и Polybar адаптированы под
-этот репозиторий.

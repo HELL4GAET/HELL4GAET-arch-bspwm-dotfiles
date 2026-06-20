@@ -3,6 +3,9 @@ set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+test -L "$root/config/bspwm/wallpaper"
+test -f "$root/config/bspwm/wallpaper"
+
 bash -n \
   "$root/install.sh" \
   "$root/xinitrc" \
@@ -29,7 +32,6 @@ integration_output="$("$root/install.sh" --dry-run --integration)"
 cli_output="$("$root/install.sh" --dry-run --cli)"
 dotfiles_output="$("$root/install.sh" --dry-run --dotfiles)"
 cleanup_output="$("$root/install.sh" --dry-run --cleanup)"
-login_output="$("$root/install.sh" --dry-run --login-manager)"
 
 grep -q -- '--doctor' <<<"$help_output"
 grep -q ' go' <<<"$packages_output"
@@ -37,7 +39,10 @@ grep -q ' unzip' <<<"$packages_output"
 grep -q 'pacman -S' <<<"$integration_output"
 grep -q 'pacman -S' <<<"$cli_output"
 grep -q 'copy directory' <<<"$dotfiles_output"
+if grep -q 'config/fastfetch' <<<"$dotfiles_output"; then
+  echo "dotfiles dry-run still references the removed Fastfetch config" >&2
+  exit 1
+fi
 grep -Eq 'pacman -D --asexplicit go|No orphan packages found' <<<"$cleanup_output"
-grep -q 'lightdm' <<<"$login_output"
 
 echo "repository smoke tests: OK"

@@ -1,6 +1,6 @@
 * {
-    generated-background: {{colors.surface.default.hex}}e6;
-    generated-surface: {{colors.surface_container.default.hex}}f2;
-    generated-foreground: {{colors.on_surface.default.hex}};
-    generated-primary: {{colors.primary.default.hex}};
+    generated-background: #1e1d2f;
+    generated-surface: #1e1d2f;
+    generated-foreground: #d9e0ee;
+    generated-primary: #7aa2f7;
 }

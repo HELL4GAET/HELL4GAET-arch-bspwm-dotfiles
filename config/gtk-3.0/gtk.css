@@ -1,9 +1,9 @@
-@define-color tn_bg #10131c;
-@define-color tn_surface #1d1f29;
-@define-color tn_surface_alt #2e3040;
-@define-color tn_fg #e0e2ef;
-@define-color tn_muted #8e909c;
-@define-color tn_blue #b3c5ff;
+@define-color tn_bg #1e1e2e;
+@define-color tn_surface #313244;
+@define-color tn_surface_alt #45475a;
+@define-color tn_fg #cdd6f4;
+@define-color tn_muted #a6adc8;
+@define-color tn_blue #89b4fa;
 
 window,
 .background {

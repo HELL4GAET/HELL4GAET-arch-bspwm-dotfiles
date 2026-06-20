@@ -43,10 +43,6 @@ alias dstatus="systemctl status docker.service docker.socket"
 function fish_prompt
     set -l last_status $status
 
-    if test $CMD_DURATION
-        printf "\n"
-    end
-
     set_color bb9af7
     printf "%s" (prompt_pwd)
 
@@ -77,10 +73,6 @@ function fish_prompt
     set_color normal
 end
 
-if status is-interactive; and set -q KITTY_WINDOW_ID; and not set -q FASTFETCH_SHOWN
-    set -gx FASTFETCH_SHOWN 1
-    command -q fastfetch; and fastfetch
-end
 
 if command -q bat
     alias cat="bat --paging=never"

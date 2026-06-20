@@ -11,9 +11,8 @@ CORE_PACKAGES=(
   xorg-setxkbmap xorg-xkbcomp xorg-xmodmap xorg-xrdb
   bspwm sxhkd polybar picom rofi dunst
   kitty fish fastfetch neovim thunar mousepad firefox code btop keyd matugen
-  lightdm lightdm-gtk-greeter
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber
-  networkmanager network-manager-applet bluez bluez-utils blueman
+  networkmanager network-manager-applet bluez bluez-utils blueman power-profiles-daemon
   nm-connection-editor pavucontrol pamixer playerctl brightnessctl libnotify
   flameshot xclip feh mpv telegram-desktop lxappearance
   xdg-utils
@@ -63,7 +62,6 @@ RUST_PACKAGES=(rustup)
 JDK_PACKAGES=(jdk-openjdk)
 FIREFOX_PACKAGES=(firefox)
 CHROMIUM_PACKAGES=(chromium)
-LOGIN_PACKAGES=(lightdm lightdm-gtk-greeter)
 FORBIDDEN_PACKAGES=(
   tor torbrowser-launcher mpd ncmpcpp libreoffice-fresh libreoffice-still
   gparted kdenlive audacity obs-studio anki wireshark-qt veracrypt deluge
@@ -89,7 +87,6 @@ Options:
   --jdk               Install OpenJDK.
   --browser-firefox   Install Firefox.
   --browser-chromium  Install Chromium.
-  --login-manager     Install and enable LightDM with the GTK greeter.
   --dotfiles          Copy dotfiles into \$HOME with timestamped backups.
   --update            Validate and update installed dotfiles with backups.
   --restore [path]    Restore a backup (latest backup by default).
@@ -97,8 +94,8 @@ Options:
   --doctor            Check packages, commands, fonts, configs and hardware.
   --cleanup           Remove known debug packages and orphan dependencies.
   --dry-run OPTION    Print actions for another installer option.
-  --services          Enable NetworkManager, Bluetooth, keyd and PipeWire.
-  --all               Install the complete desktop, dotfiles, services and LightDM.
+  --services          Enable NetworkManager, Bluetooth, keyd, power profiles and PipeWire.
+  --all               Install the complete desktop, dotfiles and services.
   --help              Show this help.
 
 Existing dotfiles are moved to a timestamped backup before replacement.
@@ -171,7 +168,6 @@ check_packages() {
   check_group "developer" "${DEV_PACKAGES[@]}"
   check_group "firefox" "${FIREFOX_PACKAGES[@]}"
   check_group "chromium" "${CHROMIUM_PACKAGES[@]}"
-  check_group "login manager" "${LOGIN_PACKAGES[@]}"
   echo "forbidden packages installed:"
   local found=()
   local pkg
@@ -258,27 +254,6 @@ install_docker() {
   sudo systemctl enable --now docker.service
   sudo usermod -aG docker "$USER"
   echo "Docker group membership takes effect after the next login."
-}
-
-install_login_manager() {
-  local existing service
-  for service in sddm.service gdm.service ly@tty1.service; do
-    if systemctl is-enabled "$service" >/dev/null 2>&1; then
-      existing="$service"
-      break
-    fi
-  done
-  if [[ -n "${existing:-}" ]]; then
-    echo "An existing display manager is enabled: $existing" >&2
-    echo "Disable it explicitly before installing LightDM to avoid a login conflict." >&2
-    return 1
-  fi
-  install_group "${LOGIN_PACKAGES[@]}"
-  if ((DRY_RUN)); then
-    echo "[dry-run] sudo systemctl enable --now lightdm.service"
-    return 0
-  fi
-  sudo systemctl enable --now lightdm.service
 }
 
 backup_path() {
@@ -416,7 +391,6 @@ $HOME/.config/rofi
 $HOME/.config/dunst
 $HOME/.config/kitty
 $HOME/.config/fish
-$HOME/.config/fastfetch
 $HOME/.config/matugen
 $HOME/.config/btop
 $HOME/.config/flameshot
@@ -458,7 +432,6 @@ install_dotfiles() {
   copy_dir "$ROOT_DIR/config/dunst" "$HOME/.config/dunst"
   copy_dir "$ROOT_DIR/config/kitty" "$HOME/.config/kitty"
   copy_dir "$ROOT_DIR/config/fish" "$HOME/.config/fish"
-  copy_dir "$ROOT_DIR/config/fastfetch" "$HOME/.config/fastfetch"
   copy_dir "$ROOT_DIR/config/matugen" "$HOME/.config/matugen"
   copy_dir "$ROOT_DIR/config/btop" "$HOME/.config/btop"
   copy_dir "$ROOT_DIR/config/flameshot" "$HOME/.config/flameshot"
@@ -496,13 +469,14 @@ install_dotfiles() {
 
 enable_services() {
   if ((DRY_RUN)); then
-    echo "[dry-run] install keyd config and enable NetworkManager, bluetooth, keyd and PipeWire"
+    echo "[dry-run] install keyd config and enable NetworkManager, bluetooth, keyd, power profiles and PipeWire"
     return 0
   fi
   sudo install -Dm644 "$ROOT_DIR/config/keyd/default.conf" /etc/keyd/default.conf
   sudo systemctl enable --now NetworkManager.service
   sudo systemctl enable --now bluetooth.service
   sudo systemctl enable --now keyd.service
+  sudo systemctl enable --now power-profiles-daemon.service
   systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service || true
 }
 
@@ -676,7 +650,7 @@ Installation finished.
 
 Next steps:
   1. Reboot, or log out and back in.
-  2. Log in through LightDM, or run startx from a TTY if LightDM was skipped.
+  2. Log in on tty1; bash_profile starts BSPWM automatically through startx.
   3. In BSPWM press Super+Enter for a terminal.
   4. Use Super+Shift+M to toggle laptop/external monitor profiles.
 
@@ -690,7 +664,7 @@ run_wizard() {
 HELL4GAET BSPWM installer
 
 This wizard can install the desktop, CLI and AUR packages, copy dotfiles with
-backups, enable services, and configure LightDM.
+backups and enable services. The desktop starts from tty1 through startx.
 EOF
 
   confirm "Continue with the BSPWM desktop installation?" yes || exit 0
@@ -710,7 +684,7 @@ EOF
   if confirm "Install dotfiles into $HOME?" yes; then
     install_dotfiles
   fi
-  if confirm "Enable NetworkManager, Bluetooth, keyd and PipeWire?" yes; then
+  if confirm "Enable NetworkManager, Bluetooth, keyd, power profiles and PipeWire?" yes; then
     enable_services
   fi
   if confirm "Install optional developer tools?" no; then
@@ -719,10 +693,6 @@ EOF
   if confirm "Install optional GoLand?" no; then
     install_goland
   fi
-  if confirm "Install and enable the LightDM login manager?" yes; then
-    install_login_manager
-  fi
-
   print_finish
 }
 
@@ -787,9 +757,6 @@ case "${1:-}" in
   --browser-chromium)
     install_group "${CHROMIUM_PACKAGES[@]}"
     ;;
-  --login-manager)
-    install_login_manager
-    ;;
   --dotfiles)
     install_dotfiles
     ;;
@@ -818,7 +785,6 @@ case "${1:-}" in
     install_aur_packages
     install_dotfiles
     enable_services
-    install_login_manager
     print_finish
     ;;
   *)
