@@ -6,7 +6,7 @@ PipeWire, NetworkManager и Bluetooth. Конфигурация адаптиро
 
 ## Демонстрация
 
-![Третий workspace BSPWM](demonstration/workspace-3.png)
+![Рабочий стол BSPWM](demonstration/demo_screen.png)
 
 ## Быстрая установка
 
