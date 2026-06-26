@@ -1,9 +1,9 @@
 <application>
   <component name="TerminalFontOptions">
     <option name="VERSION" value="1" />
-    <option name="FONT_SIZE" value="20" />
-    <option name="FONT_SIZE_2D" value="20.0" />
-    <option name="FONT_SCALE" value="1.25" />
+    <option name="FONT_SIZE" value="26" />
+    <option name="FONT_SIZE_2D" value="25.550003" />
+    <option name="FONT_SCALE" value="1.75" />
     <option name="SECONDARY_FONT_FAMILY" />
   </component>
 </application>

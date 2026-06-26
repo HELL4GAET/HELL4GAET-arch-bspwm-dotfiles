@@ -28,6 +28,7 @@
 | `super + shift + d` | Rofi run prompt |
 | `super + shift + Return` | Rofi window switcher |
 | `super + shift + f` | Firefox |
+| `super + shift + g` | Chromium |
 | `super + shift + c` | Code - OSS |
 | `super + shift + n` | Thunar |
 | `super + shift + p` | Pavucontrol |
@@ -69,7 +70,7 @@
 | `super + f` | Fullscreen |
 | `super + h/j/k/l` | Фокус west/south/north/east |
 | `super + shift + h/j/k/l` | Swap окна west/south/north/east |
-| `Alt + Tab` | Переключение окон через `alttab` со всех рабочих столов |
+| `Alt + Tab` | Переключение на последнее окно через BSPWM |
 | `super + grave` | Последнее окно |
 | `super + Tab` | Последний desktop |
 | `super + 1-5` | Перейти на desktop 1-5 |

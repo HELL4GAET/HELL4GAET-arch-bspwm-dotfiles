@@ -121,17 +121,19 @@ AUR-пакеты, dotfiles и сервисы. Пароль `sudo` всё рав�
 
 Основной рабочий стол:
 
-- BSPWM, SXHKD, Polybar, Picom, Rofi, Dunst и Alttab;
+- BSPWM, SXHKD, Polybar, Picom, Rofi и Dunst;
 - Kitty с Fish и кастомным prompt; Fastfetch доступен для ручного запуска;
 - Neovim с LazyVim, готовым Go LSP, форматированием, lint, тестами, DAP и Git;
 - PipeWire, WirePlumber, Pavucontrol и управление громкостью;
 - NetworkManager, Blueman и Bluetooth;
-- Thunar, Firefox, Code OSS, Telegram Desktop, MPV и Flameshot;
+- Thunar, Chromium, Firefox, Code OSS, Telegram Desktop, MPV и Flameshot;
 - JetBrainsMono Nerd Font, Noto Fonts и Papirus;
 - единая непрозрачная палитра Catppuccin для Kitty и Rofi;
 - белый курсор `Bibata-Modern-Ice`;
+- Chromium как обработчик HTML/HTTP/HTTPS по умолчанию, Firefox отдельным
+  быстрым запуском;
 - lockscreen через `i3lock-color`;
-- GTK-тема `Dracula-pink-accent`.
+- GTK-тема `Dracula-pink-accent`;
 - Polkit-agent, автоматическое подключение накопителей и интеграция Thunar с
   MTP, SMB, архивами, thumbnails и корзиной;
 - idle locking перед DPMS/suspend через `xss-lock`;
@@ -294,7 +296,7 @@ Picom настроен на полностью непрозрачный визу
 - VSync включён;
 - мягкие тени включены;
 - blur отключён;
-- fading включён;
+- fading отключён, чтобы show/hide/focus/workspace changes были мгновенными;
 - активные и неактивные окна имеют opacity `1.0`, затемнение отключено;
 - скругления `14 px`.
 
@@ -320,8 +322,8 @@ GoLand 2026.1 настроен на Fish во встроенном термин�
 ```
 
 Также устанавливаются светлая тема интерфейса GoLand, светлая цветовая схема
-редактора, compact UI и увеличенные editor/terminal fonts. Code OSS использует
-тему `Light Modern`.
+редактора, compact UI и HiDPI editor/terminal fonts для внешнего 4K-профиля.
+Code OSS использует тему `Light Modern`.
 
 ## CLI-инструменты
 
@@ -363,6 +365,8 @@ GoLand 2026.1 настроен на Fish во встроенном термин�
 Installer копирует переносимую конфигурацию из `config/nvim` в
 `~/.config/nvim`. В репозитории хранятся только конфиги и lockfile плагинов;
 скачанные плагины, swap, undo, сессии и прочее runtime-состояние не хранятся.
+Пустой `lua/plugins/init.lua` оставлен как безопасная точка для будущих
+локальных plugin specs.
 
 Первый запуск:
 
@@ -410,15 +414,17 @@ Unit устанавливается в:
 латинские буквы, поэтому `Ctrl+C`, `Ctrl+V`, `Ctrl+X` и другие shortcut работают
 без ручного переключения на английский.
 
-Caps Lock остаётся обычным Caps Lock и не переназначается в Ctrl. `keyd`
-используется только для преобразования аппаратной клавиши `Fn` в `F13`.
+Caps Lock остаётся обычным Caps Lock и не переназначается в Ctrl. Базовый
+`keyd`-профиль преобразует аппаратную клавишу `Fn` в `F13`. Дополнительный
+профиль `config/keyd/ajazz-nk68.conf` применяется к Ajazz NK68 v2
+(`36ae:feab`) и делает `Fn+-` уменьшением громкости, а `Fn+=/+` увеличением.
 
 ## Rofi и powermenu
 
-Rofi использует непрозрачную тему Catppuccin. `Super+D` открывает меню
-приложений, `Super+Shift+D` — run prompt, `Super+Shift+Enter` — переключатель
-окон. Powermenu открывается через `Super+Shift+X` или левый значок Arch Linux в
-Polybar.
+Rofi использует непрозрачную тему Catppuccin и увеличенный HiDPI-шрифт во
+внешнем 4K-профиле. `Super+D` открывает меню приложений, `Super+Shift+D` — run
+prompt, `Super+Shift+Enter` — переключатель окон. Powermenu открывается через
+`Super+Shift+X` или левый значок Arch Linux в Polybar.
 
 `theme-from-wallpaper` повторно применяет закреплённые шаблоны Kitty и Rofi
 через Matugen. Палитра намеренно фиксирована и не меняется от выбранных обоев.
@@ -461,6 +467,8 @@ Super+Enter          терминал
 Super+D              приложения
 Super+Shift+D        запуск команды
 Super+Shift+Enter    список окон
+Super+Shift+F        Firefox
+Super+Shift+G        Chromium
 Super+Q              закрыть окно
 Super+1..5           рабочие столы
 Super+Shift+1..5     перенести окно

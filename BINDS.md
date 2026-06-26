@@ -11,6 +11,7 @@
 | `Super + Shift + D` | Run command |
 | `Super + Shift + Enter` | Window switcher |
 | `Super + Shift + F` | Open Firefox |
+| `Super + Shift + G` | Open Chromium |
 | `Super + Shift + C` | Open VS Code |
 | `Super + Shift + N` | Open Thunar |
 | `Super + Shift + P` | Audio settings |
@@ -62,8 +63,7 @@
 | --- | --- |
 | `Super + H/J/K/L` | Focus west/south/north/east |
 | `Super + Shift + H/J/K/L` | Swap west/south/north/east |
-| `Alt + Tab` | Focus next window |
-| `Alt + Shift + Tab` | Focus previous window |
+| `Alt + Tab` | Focus last window through BSPWM |
 | `Super + Grave` | Focus last window |
 | `Super + Tab` | Focus last desktop |
 

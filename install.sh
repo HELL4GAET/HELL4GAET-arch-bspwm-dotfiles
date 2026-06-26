@@ -10,7 +10,7 @@ CORE_PACKAGES=(
   xorg-server xorg-xinit xorg-xrandr xorg-xset xorg-xsetroot
   xorg-setxkbmap xorg-xkbcomp xorg-xmodmap xorg-xrdb
   bspwm sxhkd polybar picom rofi dunst
-  kitty fish fastfetch neovim thunar mousepad firefox code btop keyd matugen
+  kitty fish fastfetch neovim thunar mousepad firefox chromium code btop keyd matugen
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber
   networkmanager network-manager-applet bluez bluez-utils blueman power-profiles-daemon
   nm-connection-editor pavucontrol pamixer playerctl brightnessctl libnotify
@@ -41,7 +41,6 @@ DEBUG_PACKAGES=(
 )
 
 AUR_DESKTOP_PACKAGES=(
-  alttab
   i3lock-color
   bibata-cursor-theme
 )
@@ -376,7 +375,7 @@ validate_sources() {
     fish -n "$ROOT_DIR/config/fish/config.fish"
   fi
   if command -v keyd >/dev/null 2>&1; then
-    keyd check "$ROOT_DIR/config/keyd/default.conf"
+    keyd check "$ROOT_DIR"/config/keyd/*.conf
   fi
   echo "Repository configuration syntax: OK"
 }
@@ -469,10 +468,14 @@ install_dotfiles() {
 
 enable_services() {
   if ((DRY_RUN)); then
-    echo "[dry-run] install keyd config and enable NetworkManager, bluetooth, keyd, power profiles and PipeWire"
+    echo "[dry-run] install keyd configs and enable NetworkManager, bluetooth, keyd, power profiles and PipeWire"
     return 0
   fi
-  sudo install -Dm644 "$ROOT_DIR/config/keyd/default.conf" /etc/keyd/default.conf
+  sudo install -d -m 0755 /etc/keyd
+  local keyd_conf
+  for keyd_conf in "$ROOT_DIR"/config/keyd/*.conf; do
+    sudo install -m 0644 "$keyd_conf" "/etc/keyd/$(basename "$keyd_conf")"
+  done
   sudo systemctl enable --now NetworkManager.service
   sudo systemctl enable --now bluetooth.service
   sudo systemctl enable --now keyd.service
@@ -678,7 +681,7 @@ EOF
   if confirm "Install command-line tools?" yes; then
     install_cli_packages
   fi
-  if confirm "Install required AUR packages (alttab, i3lock-color, Bibata)?" yes; then
+  if confirm "Install required AUR packages (i3lock-color, Bibata)?" yes; then
     install_aur_packages
   fi
   if confirm "Install dotfiles into $HOME?" yes; then

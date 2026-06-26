@@ -18,6 +18,9 @@ super + shift + Return
 super + shift + f
     firefox
 
+super + shift + g
+    chromium
+
 super + shift + c
     code
 
@@ -92,7 +95,10 @@ super + {h,j,k,l}
 super + shift + {h,j,k,l}
     bspc node -s {west,south,north,east}
 
-# Alt+Tab is handled by alttab.
+# Toggle the last focused window through bspwm itself. This correctly sends
+# WM_TAKE_FOCUS to Java/JetBrains windows.
+alt + Tab
+    bspc node -f last
 
 super + {grave,Tab}
     bspc {node,desktop} -f last

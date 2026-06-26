@@ -24,6 +24,7 @@ setxkbmap -I"$HOME/.xkb" -layout us,ructrl -option grp:alt_shift_toggle,terminat
 xmodmap -e 'keycode 191 = ISO_Next_Group' 2>/dev/null || true
 xset r rate 180 45
 
+# Previous rice profile: border_width 4, window_gap 17.
 bspc config border_width 5
 bspc config window_gap 16
 bspc config split_ratio 0.52
@@ -68,7 +69,7 @@ wallpaper
 pgrep -x dunst >/dev/null || setsid -f dunst
 pgrep -x picom >/dev/null ||
     setsid -f picom --config "$HOME/.config/picom/picom.conf"
-start_once alttab -w 1 -d 1 -sc 0
+# Alt+Tab is handled directly by bspwm via sxhkd.
 start_once nm-applet
 start_once blueman-applet
 start_once flameshot

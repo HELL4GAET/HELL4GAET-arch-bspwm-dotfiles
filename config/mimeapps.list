@@ -1,9 +1,9 @@
 [Default Applications]
-text/html=firefox.desktop
-x-scheme-handler/http=firefox.desktop
-x-scheme-handler/https=firefox.desktop
-x-scheme-handler/about=firefox.desktop
-x-scheme-handler/unknown=firefox.desktop
+text/html=chromium.desktop
+x-scheme-handler/http=chromium.desktop
+x-scheme-handler/https=chromium.desktop
+x-scheme-handler/about=chromium.desktop
+x-scheme-handler/unknown=chromium.desktop
 x-scheme-handler/chrome=firefox.desktop
 application/x-extension-htm=firefox.desktop
 application/x-extension-html=firefox.desktop
@@ -24,6 +24,8 @@ video/mpeg=mpv.desktop
 video/x-flv=mpv.desktop
 video/ogg=mpv.desktop
 text/plain=org.xfce.mousepad.desktop
+x-scheme-handler/jetbrains=jetbrainsd.desktop
+x-scheme-handler/postman=Postman.desktop
 
 [Added Associations]
 x-scheme-handler/http=firefox.desktop;

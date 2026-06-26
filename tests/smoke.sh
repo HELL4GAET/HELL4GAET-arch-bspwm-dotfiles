@@ -23,7 +23,7 @@ if command -v fish >/dev/null 2>&1; then
 fi
 
 if command -v keyd >/dev/null 2>&1; then
-  keyd check "$root/config/keyd/default.conf"
+  keyd check "$root"/config/keyd/*.conf
 fi
 
 help_output="$("$root/install.sh" --help)"
@@ -36,6 +36,7 @@ cleanup_output="$("$root/install.sh" --dry-run --cleanup)"
 grep -q -- '--doctor' <<<"$help_output"
 grep -q ' go' <<<"$packages_output"
 grep -q ' unzip' <<<"$packages_output"
+grep -q ' chromium' <<<"$packages_output"
 grep -q 'pacman -S' <<<"$integration_output"
 grep -q 'pacman -S' <<<"$cli_output"
 grep -q 'copy directory' <<<"$dotfiles_output"
